@@ -1,7 +1,7 @@
 import pygame
 from sys import exit
 
-#-----------------------
+#-----------------------------------------
 #O principal conceito no pygame é o de
 #Surface, pois é com base nele que se
 #cria objetos e os controla, existem
@@ -10,7 +10,8 @@ from sys import exit
 #postos dentro da janela, vale lembrar
 #que é permitido colocar um item dentro
 #de outro item
-#-----------------------
+#------------------------------------------
+
 pygame.init()
 #Inicia o PyGame
 screen = pygame.display.set_mode((800,500))
@@ -58,7 +59,7 @@ while True:
             #Fecha o interpretador do código impedindo o while True de continuar
                 
     screen.blit(testSurface, (200,0))
-    #Carrega o testSurface dentro da Screen
+    #Posiciona o testSurface dentro da Screen
     testSurface.blit(blue, (0,0))
     #Se estiver fora do alcance do display usado não vai renderizar
     screen.blit(green, (200,50))
