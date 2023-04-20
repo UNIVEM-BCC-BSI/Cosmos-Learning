@@ -49,6 +49,8 @@ textSurface = testText.render("Testando PyGame",False,"orange")
 #É uma Surface, está gerendo uma Surface com conteudo especificado, se o antialias for True
 #o texto fica mais "arredondado"
 
+#Posição X do testImage
+testImagePosX = 500 
 
 while True:
     for event in pygame.event.get():
@@ -60,19 +62,26 @@ while True:
                 
     screen.blit(testSurface, (200,0))
     #Posiciona o testSurface dentro da Screen
+    #A cada frama atualiza a posição
+    
     testSurface.blit(blue, (0,0))
     #Se estiver fora do alcance do display usado não vai renderizar
+    
     screen.blit(green, (200,50))
     #Perceba que pygame permite sobreposição
     
-    screen.blit(testImage, (500,100))
+    testImagePosX += 1
+    
+    screen.blit(testImage, (testImagePosX,100))
     #A tupla esta passando a margem que o objeto deve ter em X e Y
     #Lembrando que o ponto X = 0 e Y = 0 no pygame é no canto superior esquerdo
     
     screen.blit(textSurface,(500, 200))
     
     
+    
     pygame.display.update()
     #Sem isso a tela fica completamente preta
+    
     Clock.tick(60)
     #Limita a quantidade maxima de frames por segundo
