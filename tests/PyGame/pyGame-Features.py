@@ -39,7 +39,7 @@ blue.fill("blue")
 green = pygame.Surface((100,50))
 green.fill("green")
 
-testImage = pygame.image.load("./tests/PyGame/starSprite.png")
+testImage = pygame.image.load("tests/PyGame/starSprite.png")
 #Permite carregar uma imagem para mais tarde ser usada como Surface
 
 testText = pygame.font.Font(None, 50)
@@ -50,15 +50,48 @@ textSurface = testText.render("Testando PyGame",False,"orange")
 #o texto fica mais "arredondado"
 
 #Posição X do testImage
-testImagePosX = 500 
+testImageX = 500 
+testImageY = 100
 
 while True:
+    
+    screen.fill("black")
+    #Como o metodo blit desenha na tela, sempre a pinta de preto para permitir
+    #a movimentação do personagem
+    
+    #Um outro jeito de checar as teclas apertadas
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w]:
+        #Se existe pygame.K_w dentro de keys
+        testImageY -= 1
+    if keys[pygame.K_s]:
+        testImageY += 1
+    if keys[pygame.K_a]:
+        testImageX -= 1
+    if keys[pygame.K_d]:
+        testImageX += 1
+    
     for event in pygame.event.get():
         #Gera uma lista de eventos registrados pelo pygame
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
             #Fecha o interpretador do código impedindo o while True de continuar
+
+        #Outro jeito de fazer
+
+#        if event.type == pygame.KEYDOWN:
+#            if event.key == pygame.K_w:
+#                testImageY -= 1
+#                #decrementa pq (0,0) é no canto superior esquerdo
+#            if event.key == pygame.K_s:
+#                testImageY += 1
+#                #incrementa pq (0,0) é no canto superior esquerdo
+#            if event.key == pygame.K_a:
+#                testImageX -= 1
+#            if event.key == pygame.K_d:
+#                testImageX += 1
+    
                 
     screen.blit(testSurface, (200,0))
     #Posiciona o testSurface dentro da Screen
@@ -70,9 +103,9 @@ while True:
     screen.blit(green, (200,50))
     #Perceba que pygame permite sobreposição
     
-    testImagePosX += 1
+    screen.blit(testImage, (testImageX, testImageY))
+    #Perceber que fica desenhando em cima da imagem anterior enquanto move
     
-    screen.blit(testImage, (testImagePosX,100))
     #A tupla esta passando a margem que o objeto deve ter em X e Y
     #Lembrando que o ponto X = 0 e Y = 0 no pygame é no canto superior esquerdo
     
