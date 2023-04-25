@@ -41,6 +41,11 @@ green.fill("green")
 
 testImage = pygame.image.load("tests/PyGame/starSprite.png")
 #Permite carregar uma imagem para mais tarde ser usada como Surface
+background = pygame.image.load("tests/PyGame/testBackground.png")
+scrollSpeed = 1
+scrollOffset = 0
+
+
 
 testText = pygame.font.Font(None, 50)
 #Gera uma fonte de tipo e tamanho especificado
@@ -55,21 +60,10 @@ testImageY = 100
 
 while True:
     
-    screen.fill("black")
+    #screen.fill("black")
     #Como o metodo blit desenha na tela, sempre a pinta de preto para permitir
     #a movimentação do personagem
     
-    #Um outro jeito de checar as teclas apertadas
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        #Se existe pygame.K_w dentro de keys
-        testImageY -= 1
-    if keys[pygame.K_s]:
-        testImageY += 1
-    if keys[pygame.K_a]:
-        testImageX -= 1
-    if keys[pygame.K_d]:
-        testImageX += 1
     
     for event in pygame.event.get():
         #Gera uma lista de eventos registrados pelo pygame
@@ -93,6 +87,26 @@ while True:
 #                testImageX += 1
     
                 
+    screen.blit(background, (scrollOffset,0))
+    screen.blit(background, (scrollOffset+background.get_width(), 0))
+    
+    scrollOffset -= scrollSpeed
+    scrollSpeed += 0.01
+    
+    if scrollOffset <= -background.get_width():
+        scrollOffset = 0
+        
+    #Um outro jeito de checar as teclas apertadas
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w]:
+        #Se existe pygame.K_w dentro de keys
+        testImageY -= 1
+    if keys[pygame.K_s]:
+        testImageY += 1
+    if keys[pygame.K_a]:
+        testImageX -= 1
+    if keys[pygame.K_d]:
+        testImageX += 1
     screen.blit(testSurface, (200,0))
     #Posiciona o testSurface dentro da Screen
     #A cada frama atualiza a posição
