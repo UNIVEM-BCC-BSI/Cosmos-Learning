@@ -72,7 +72,7 @@ while True:
             exit()
             #Fecha o interpretador do código impedindo o while True de continuar
 
-        #Outro jeito de fazer
+        #Outro jeito de fazer pra pegar as teclas pressionadas
 
 #        if event.type == pygame.KEYDOWN:
 #            if event.key == pygame.K_w:
@@ -87,13 +87,13 @@ while True:
 #                testImageX += 1
     
                 
-    screen.blit(background, (scrollOffset,0))
-    screen.blit(background, (scrollOffset+background.get_width(), 0))
+    screen.blit(background, (0,scrollOffset))
+    screen.blit(background, (0, scrollOffset-background.get_height()))
     
-    scrollOffset -= scrollSpeed
+    scrollOffset += scrollSpeed
     scrollSpeed += 0.01
     
-    if scrollOffset <= -background.get_width():
+    if scrollOffset >= background.get_height():
         scrollOffset = 0
         
     #Um outro jeito de checar as teclas apertadas
