@@ -1,6 +1,10 @@
 import pygame
 from sys import exit
+from random import randrange
 
+
+#TODO diminuir a vida do inimigo
+#TODO adicionar dano aos disparos
 
 #-----------------------------------------
 #O principal conceito no pygame é o de
@@ -13,11 +17,43 @@ from sys import exit
 #de outro item
 #------------------------------------------
 
+class Enemy:
+    def __init__(self,tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, chancesDeAtirar,disparoSpeed, speedX, speedLimitX,speedY, caminhoImagem):
+        self.vida = vida
+        self.tela = tela
+        self.x = spawnPositionX
+        self.y = spawnPositionY
+        self.deveAtirar = atirador
+        self.disparoX = spawnPositionX
+        self.disparoY = spawnPositionY
+        self.image = pygame.image.load(caminhoImagem)
+        self.speedX = speedX
+        self.speedLimitX = speedLimitX
+        self.speedY = speedY
+        self.derrotado = False
+        self.chanceShoot = chancesDeAtirar
+        self.disparoSpeed = disparoSpeed
+        
+    def update(self):
+        if self.derrotado == False:
+            self.tela.blit(self.image, (self.x, self.y))
+            self.x = randrange(-self.speedLimitX, self.speedLimitX+1, self.speedX)
+            self.y += self.speedY
+            if randrange(0,self.chanceShoot) == 1:
+                return True
+        
+    def atirar(self):
+        self.tela.blit(self.image, (self.disparoX,self.disparoY))
+        self.disparoY += self.disparoSpeed
+        
+    def sofrerDano(self, qtndDano):
+        self.vida -= qtndDano
+
 class Tiro:
     def __init__(self, tela, posicaoXPai, posicaoYPai, velocidadeTiro):
-        global last
+        global lastDisparo
         #Fala que a variavel esta em escopo global
-        last = pygame.time.get_ticks()
+        lastDisparo = pygame.time.get_ticks()
         #Recebe a quantidade de milisegundos desde o pygame.init
         self.x = posicaoXPai
         self.y = posicaoYPai
@@ -78,10 +114,17 @@ testImageX = 500
 testImageY = 100
 
 disparos = []
+inimigos = []
+disparosInimigos = []
 
-cooldown = 300
+cooldownDisparo = 300
+cooldownSpawn = 10000
+
 #diferença de ticks necessaria para poder atirar
-last = pygame.time.get_ticks()
+lastDisparo = pygame.time.get_ticks()
+lastSpawn = pygame.time.get_ticks()
+
+
 
 while True:
     
@@ -133,8 +176,8 @@ while True:
     if keys[pygame.K_d]:
         testImageX += 1
     if keys[pygame.K_SPACE]:
-        now = pygame.time.get_ticks()
-        if now - last >= cooldown:
+        nowDisparo = pygame.time.get_ticks()
+        if nowDisparo - lastDisparo >= cooldownDisparo:
             disparos.append(Tiro(screen, testImageX, testImageY, 2))
             #permite manter varios disparos ao mesmo tempo
     
@@ -162,7 +205,23 @@ while True:
         disparo.update()
         if disparo.y < -screen.get_height()-100:
             disparos.pop(disparos.index(disparo))
+            
+    for disparo in disparosInimigos:
+        disparo.atirar()
     
+    nowSpawn = pygame.time.get_ticks()
+    if nowSpawn-lastSpawn>=cooldownSpawn:
+        inimigos.append(Enemy(screen, 10, randrange(0, screen.get_width()()+1), 100, True, "tests/PyGame/starSprite.png",50, 2, 2, 10, 1, "tests/PyGame/starSprite.png"))
+        lastSpawn = pygame.time.get_ticks()
+        
+    for inimigo in inimigos:
+        
+        for disparo in disparos:
+            if inimigo.x == disparo.x and inimigo.y == disparo.y:
+                inimigo.derrotado = True
+        if inimigo.update():
+            disparosInimigos.append(inimigo)
+            
     
     
     pygame.display.update()
