@@ -5,6 +5,7 @@ from random import randrange
 
 #TODO diminuir a vida do inimigo
 #TODO adicionar dano aos disparos
+#TODO retrabalhar sistema de movimento dos inimigos
 
 #-----------------------------------------
 #O principal conceito no pygame é o de
@@ -28,7 +29,7 @@ class Enemy:
         self.disparoY = spawnPositionY
         self.image = pygame.image.load(caminhoImagem)
         self.speedX = speedX
-        self.speedLimitX = speedLimitX
+        self.LimitX = speedLimitX
         self.speedY = speedY
         self.derrotado = False
         self.chanceShoot = chancesDeAtirar
@@ -37,7 +38,7 @@ class Enemy:
     def update(self):
         if self.derrotado == False:
             self.tela.blit(self.image, (self.x, self.y))
-            self.x = randrange(-self.speedLimitX, self.speedLimitX+1, self.speedX)
+            self.x = randrange(-self.LimitX, self.LimitX+1, self.speedX)
             self.y += self.speedY
             if randrange(0,self.chanceShoot) == 1:
                 return True
@@ -50,7 +51,7 @@ class Enemy:
         self.vida -= qtndDano
 
 class Tiro:
-    def __init__(self, tela, posicaoXPai, posicaoYPai, velocidadeTiro):
+    def __init__(self, tela, posicaoXPai, posicaoYPai, velocidadeTiro, dano):
         global lastDisparo
         #Fala que a variavel esta em escopo global
         lastDisparo = pygame.time.get_ticks()
@@ -60,6 +61,7 @@ class Tiro:
         self.speed = velocidadeTiro
         self.image = pygame.image.load("tests/PyGame/starSprite.png")
         self.tela = tela
+        self.dano
         
     def update(self):
         self.tela.blit(self.image, (self.x,self.y))
@@ -178,7 +180,7 @@ while True:
     if keys[pygame.K_SPACE]:
         nowDisparo = pygame.time.get_ticks()
         if nowDisparo - lastDisparo >= cooldownDisparo:
-            disparos.append(Tiro(screen, testImageX, testImageY, 2))
+            disparos.append(Tiro(screen, testImageX, testImageY, 2,5))
             #permite manter varios disparos ao mesmo tempo
     
     screen.blit(testSurface, (200,0))
