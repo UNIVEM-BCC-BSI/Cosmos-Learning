@@ -19,7 +19,7 @@ from random import randrange
 #------------------------------------------
 
 class Enemy:
-    def __init__(self,tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, chancesDeAtirar,disparoSpeed, speedX, speedLimitX,speedY, caminhoImagem):
+    def __init__(self,tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, chancesDeAtirar,disparoSpeed, speedX, speedLimitX,speedY, caminhoImagem, isMovingLeft):
         self.vida = vida
         self.tela = tela
         self.x = spawnPositionX
@@ -34,14 +34,23 @@ class Enemy:
         self.derrotado = False
         self.chanceShoot = chancesDeAtirar
         self.disparoSpeed = disparoSpeed
+        self.isMovingLeft = isMovingLeft
         
     def update(self):
         if self.derrotado == False:
             self.tela.blit(self.image, (self.x, self.y))
-            if self.x >=0 and self.x <= self.tela.get_width():
-                self.x += self.speedX
-            else:
+            
+            #Ta uma merda isso
+            
+            if self.x > self.tela.get_width():
+                self.isMovingLeft = True
+            elif self.x < 0:
+                self.isMovingLeft = False
+            if self.isMovingLeft:
                 self.x -= self.speedX
+            else:
+                self.x += self.speedX
+            
             
             self.y += self.speedY
             if randrange(0,self.chanceShoot) == 1:
@@ -127,7 +136,8 @@ inimigos = []
 disparosInimigos = []
 
 cooldownDisparo = 300
-cooldownSpawn = 10000
+cooldownSpawn = 3500
+#Ta um bom cooldown pra testes
 
 #diferença de ticks necessaria para poder atirar
 lastDisparo = pygame.time.get_ticks()
@@ -220,13 +230,14 @@ while True:
     
     nowSpawn = pygame.time.get_ticks()
     if nowSpawn-lastSpawn>=cooldownSpawn:
-        inimigos.append(Enemy(screen, 10, randrange(0, screen.get_width()+1), 100, True, "tests/PyGame/starSprite.png",50, 2, 2, 10, 1, "tests/PyGame/starSprite.png"))
+        inimigos.append(Enemy(screen, 10, randrange(0, screen.get_width()+1), 100, True, "tests/PyGame/starSprite.png",50, 2, 2, 10, 1, "tests/PyGame/starSprite.png", True))
         lastSpawn = pygame.time.get_ticks()
         
     for inimigo in inimigos:
         
         for disparo in disparos:
             if inimigo.x == disparo.x and inimigo.y == disparo.y:
+                #nao ta funcionando
                 inimigo.derrotado = True
         if inimigo.update():
             disparosInimigos.append(inimigo)
