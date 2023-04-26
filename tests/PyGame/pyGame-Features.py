@@ -1,6 +1,7 @@
 import pygame
 from sys import exit
 
+
 #-----------------------------------------
 #O principal conceito no pygame é o de
 #Surface, pois é com base nele que se
@@ -11,6 +12,22 @@ from sys import exit
 #que é permitido colocar um item dentro
 #de outro item
 #------------------------------------------
+
+class Tiro:
+    def __init__(self, tela, posicaoXPai, posicaoYPai, velocidadeTiro):
+        global last
+        last = pygame.time.get_ticks()
+        self.x = posicaoXPai
+        self.y = posicaoYPai
+        self.speed = velocidadeTiro
+        self.image = pygame.image.load("tests/PyGame/starSprite.png")
+        self.tela = tela
+        
+    def update(self):
+        self.tela.blit(self.image, (self.x,self.y))
+        self.y -= self.speed
+        
+
 
 pygame.init()
 #Inicia o PyGame
@@ -57,6 +74,11 @@ textSurface = testText.render("Testando PyGame",False,"orange")
 #Posição X do testImage
 testImageX = 500 
 testImageY = 100
+
+disparos = []
+
+cooldown = 300
+last = pygame.time.get_ticks()
 
 while True:
     
@@ -107,6 +129,12 @@ while True:
         testImageX -= 1
     if keys[pygame.K_d]:
         testImageX += 1
+    if keys[pygame.K_SPACE]:
+        now = pygame.time.get_ticks()
+        if now - last >= cooldown:
+            disparos.append(Tiro(screen, testImageX, testImageY, 2))
+    
+    
     screen.blit(testSurface, (200,0))
     #Posiciona o testSurface dentro da Screen
     #A cada frama atualiza a posição
@@ -124,6 +152,11 @@ while True:
     #Lembrando que o ponto X = 0 e Y = 0 no pygame é no canto superior esquerdo
     
     screen.blit(textSurface,(500, 200))
+    
+    for disparo in disparos:
+        disparo.update()
+        if disparo.y < -screen.get_height()-100:
+            disparos.pop(disparos.index(disparo))
     
     
     
