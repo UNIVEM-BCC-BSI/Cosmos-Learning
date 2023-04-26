@@ -38,10 +38,17 @@ class Enemy:
     def update(self):
         if self.derrotado == False:
             self.tela.blit(self.image, (self.x, self.y))
-            self.x = randrange(-self.LimitX, self.LimitX+1, self.speedX)
+            if self.x >=0 and self.x <= self.tela.get_width():
+                self.x += self.speedX
+            else:
+                self.x -= self.speedX
+            
             self.y += self.speedY
             if randrange(0,self.chanceShoot) == 1:
                 return True
+            else:
+                return False
+            #Provavelmente vai precisar mexer no sistema de tiro inimigo depois
         
     def atirar(self):
         self.tela.blit(self.image, (self.disparoX,self.disparoY))
@@ -61,7 +68,7 @@ class Tiro:
         self.speed = velocidadeTiro
         self.image = pygame.image.load("tests/PyGame/starSprite.png")
         self.tela = tela
-        self.dano
+        self.dano = dano
         
     def update(self):
         self.tela.blit(self.image, (self.x,self.y))
@@ -213,7 +220,7 @@ while True:
     
     nowSpawn = pygame.time.get_ticks()
     if nowSpawn-lastSpawn>=cooldownSpawn:
-        inimigos.append(Enemy(screen, 10, randrange(0, screen.get_width()()+1), 100, True, "tests/PyGame/starSprite.png",50, 2, 2, 10, 1, "tests/PyGame/starSprite.png"))
+        inimigos.append(Enemy(screen, 10, randrange(0, screen.get_width()+1), 100, True, "tests/PyGame/starSprite.png",50, 2, 2, 10, 1, "tests/PyGame/starSprite.png"))
         lastSpawn = pygame.time.get_ticks()
         
     for inimigo in inimigos:
