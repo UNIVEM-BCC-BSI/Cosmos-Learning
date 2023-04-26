@@ -16,7 +16,9 @@ from sys import exit
 class Tiro:
     def __init__(self, tela, posicaoXPai, posicaoYPai, velocidadeTiro):
         global last
+        #Fala que a variavel esta em escopo global
         last = pygame.time.get_ticks()
+        #Recebe a quantidade de milisegundos desde o pygame.init
         self.x = posicaoXPai
         self.y = posicaoYPai
         self.speed = velocidadeTiro
@@ -78,6 +80,7 @@ testImageY = 100
 disparos = []
 
 cooldown = 300
+#diferença de ticks necessaria para poder atirar
 last = pygame.time.get_ticks()
 
 while True:
@@ -133,7 +136,7 @@ while True:
         now = pygame.time.get_ticks()
         if now - last >= cooldown:
             disparos.append(Tiro(screen, testImageX, testImageY, 2))
-    
+            #permite manter varios disparos ao mesmo tempo
     
     screen.blit(testSurface, (200,0))
     #Posiciona o testSurface dentro da Screen
@@ -153,6 +156,8 @@ while True:
     
     screen.blit(textSurface,(500, 200))
     
+    #Como os disparos são os ultimos a serem desenhados na tela
+    #garante que sempre serão mostrados em cima de qualquer surface
     for disparo in disparos:
         disparo.update()
         if disparo.y < -screen.get_height()-100:
