@@ -5,7 +5,7 @@ from random import randrange
 
 #TODO diminuir a vida do inimigo
 #TODO adicionar dano aos disparos
-#TODO retrabalhar sistema de movimento dos inimigos
+#TODO retrabalhar sistema de inimigos
 
 #-----------------------------------------
 #O principal conceito no pygame é o de
@@ -50,8 +50,7 @@ class Enemy:
                 self.x -= self.speedX
             else:
                 self.x += self.speedX
-            
-            
+              
             self.y += self.speedY
             if randrange(0,self.chanceShoot) == 1:
                 return True
@@ -61,6 +60,7 @@ class Enemy:
         
     def atirar(self):
         self.tela.blit(self.image, (self.disparoX,self.disparoY))
+        #Ta errado isso
         self.disparoY += self.disparoSpeed
         
     def sofrerDano(self, qtndDano):
@@ -83,8 +83,6 @@ class Tiro:
         self.tela.blit(self.image, (self.x,self.y))
         self.y -= self.speed
         
-
-
 pygame.init()
 #Inicia o PyGame
 screen = pygame.display.set_mode((800,500))
@@ -118,7 +116,13 @@ background = pygame.image.load("tests/PyGame/testBackground.png")
 scrollSpeed = 1
 scrollOffset = 0
 
+#print(background.get_rect())
+#retorna left top width height, lembrando que width e height se referem
+#ao tamanho da imagem, contando os pixeis vazios
 
+#lista = list(background.get_rect())
+#print(lista)
+#funciona por algum motivo
 
 testText = pygame.font.Font(None, 50)
 #Gera uma fonte de tipo e tamanho especificado
