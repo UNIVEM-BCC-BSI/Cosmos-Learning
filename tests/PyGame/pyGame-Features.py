@@ -5,7 +5,9 @@ from random import randrange
 
 #TODO diminuir a vida do inimigo
 #TODO adicionar dano aos disparos
-#TODO retrabalhar sistema de inimigos
+#TODO retrabalhar sistema de inimigos (+/- completo, falta adicionar colisao e dano)
+#TODO fazer um metodo para retornar a posição dos tiros, player e inimigos
+
 
 #-----------------------------------------
 #O principal conceito no pygame é o de
@@ -19,7 +21,7 @@ from random import randrange
 #------------------------------------------
 
 class Enemy:
-    def __init__(self,tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, chancesDeAtirar,disparoSpeed, speedX, speedLimitX,speedY, caminhoImagem, isMovingLeft):
+    def __init__(self,tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, cooldownDisparo,disparoSpeed, dano,speedX, speedLimitX,speedY, caminhoImagem, isMovingLeft):
         self.vida = vida
         self.tela = tela
         self.x = spawnPositionX
@@ -28,43 +30,68 @@ class Enemy:
         self.disparoX = spawnPositionX
         self.disparoY = spawnPositionY
         self.image = pygame.image.load(caminhoImagem)
+        self.disparo = pygame.image.load(caminhoDisparo)
+        self.disparoDano = dano
         self.speedX = speedX
         self.LimitX = speedLimitX
         self.speedY = speedY
         self.derrotado = False
-        self.chanceShoot = chancesDeAtirar
+        self.lastShoot = pygame.time.get_ticks()
+        self.shootCooldown = cooldownDisparo
+        self.now = pygame.time.get_ticks()
         self.disparoSpeed = disparoSpeed
         self.isMovingLeft = isMovingLeft
+        self.rect = list(self.image.get_rect())
+       
+       
+        #self.image.fill("red")
+        #print('Oi')
+        #remover depois
         
     def update(self):
-        if self.derrotado == False:
-            self.tela.blit(self.image, (self.x, self.y))
+        global disparosInimigos
             
-            #Ta uma merda isso
+        if self.x > self.tela.get_width():
+             self.isMovingLeft = True
+        elif self.x < 0:
+             self.isMovingLeft = False
+        if self.isMovingLeft:
+            self.x -= self.speedX
+        else:
+             self.x += self.speedX
             
-            if self.x > self.tela.get_width():
-                self.isMovingLeft = True
-            elif self.x < 0:
-                self.isMovingLeft = False
-            if self.isMovingLeft:
-                self.x -= self.speedX
-            else:
-                self.x += self.speedX
-              
-            self.y += self.speedY
-            if randrange(0,self.chanceShoot) == 1:
-                return True
-            else:
-                return False
+        self.y += self.speedY
+        
+        self.tela.blit(self.image, (self.x, self.y))
+        print(self.x, self.y)
+        
+        self.now = pygame.time.get_ticks()
+        if self.now - self.lastShoot >= self.shootCooldown:
+             disparosInimigos.append(TiroInimigo(self.tela,self.disparo, self.disparoSpeed, self.disparoDano, self.x + (self.rect[2]/2), self.y + (self.rect[3]/2)))        
+             self.lastShoot = pygame.time.get_ticks()    
             #Provavelmente vai precisar mexer no sistema de tiro inimigo depois
         
-    def atirar(self):
-        self.tela.blit(self.image, (self.disparoX,self.disparoY))
-        #Ta errado isso
-        self.disparoY += self.disparoSpeed
         
     def sofrerDano(self, qtndDano):
         self.vida -= qtndDano
+
+class TiroInimigo():
+    def __init__(self, tela,disparo, speed, dano, spawnX, spawnY):
+        #print("Disparo")
+        self.tela = tela
+        self.image = disparo   
+        self.speed = speed
+        self.dano = dano
+        self.x = spawnX
+        self.y = spawnY
+        self.hit = False
+    
+    def contato(self):
+        self.hit = True
+    
+    def update(self):
+        self.tela.blit(self.image, (self.x,self.y))
+        self.y += self.speed
 
 class Tiro:
     def __init__(self, tela, posicaoXPai, posicaoYPai, velocidadeTiro, dano):
@@ -78,7 +105,11 @@ class Tiro:
         self.image = pygame.image.load("tests/PyGame/starSprite.png")
         self.tela = tela
         self.dano = dano
+        self.hit = False
         
+    def contato(self):
+        self.hit = True
+    
     def update(self):
         self.tela.blit(self.image, (self.x,self.y))
         self.y -= self.speed
@@ -146,7 +177,6 @@ cooldownSpawn = 3500
 #diferença de ticks necessaria para poder atirar
 lastDisparo = pygame.time.get_ticks()
 lastSpawn = pygame.time.get_ticks()
-
 
 
 while True:
@@ -229,22 +259,20 @@ while True:
         if disparo.y < -screen.get_height()-100:
             disparos.pop(disparos.index(disparo))
             
-    for disparo in disparosInimigos:
-        disparo.atirar()
+    #for disparo in disparosInimigos:
+    #    disparo.atirar()
     
     nowSpawn = pygame.time.get_ticks()
     if nowSpawn-lastSpawn>=cooldownSpawn:
-        inimigos.append(Enemy(screen, 10, randrange(0, screen.get_width()+1), 100, True, "tests/PyGame/starSprite.png",50, 2, 2, 10, 1, "tests/PyGame/starSprite.png", True))
+        inimigos.append(Enemy(screen, 10, 100, 100, True, "tests/PyGame/starSprite.png", 300, 2, 5, 5, screen.get_width(), 1, "tests/PyGame/starSprite.png", True))
         lastSpawn = pygame.time.get_ticks()
         
     for inimigo in inimigos:
         
-        for disparo in disparos:
-            if inimigo.x == disparo.x and inimigo.y == disparo.y:
-                #nao ta funcionando
-                inimigo.derrotado = True
-        if inimigo.update():
-            disparosInimigos.append(inimigo)
+        inimigo.update()
+        
+    for disparo in disparosInimigos:
+        disparo.update()
             
     
     
