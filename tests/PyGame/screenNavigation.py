@@ -69,7 +69,10 @@ while True:
             #print("y:", startButtonOffset[1],"-",startButtonOffset[1]+startButtonSize[3])
             #print("-------------")
             
-            if mouse[0] == True and  mousePosition[0]>= startButtonOffset[0] and mousePosition[0]<= (startButtonOffset[0]+startButtonSize[2]) and mousePosition[1]>=startButtonOffset[1] and mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3]):
+            if (mouse[0] == True and  mousePosition[0]>= startButtonOffset[0] and 
+                mousePosition[0]<= (startButtonOffset[0]+startButtonSize[2]) and 
+                mousePosition[1]>=startButtonOffset[1] and 
+                mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3])):
                 currentScreen = "game"
     
     
