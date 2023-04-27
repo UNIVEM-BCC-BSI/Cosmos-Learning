@@ -27,8 +27,6 @@ class Enemy:
         self.x = spawnPositionX
         self.y = spawnPositionY
         self.deveAtirar = atirador
-        self.disparoX = spawnPositionX
-        self.disparoY = spawnPositionY
         self.image = pygame.image.load(caminhoImagem)
         self.disparo = pygame.image.load(caminhoDisparo)
         self.disparoDano = dano
@@ -42,8 +40,7 @@ class Enemy:
         self.disparoSpeed = disparoSpeed
         self.isMovingLeft = isMovingLeft
         self.rect = list(self.image.get_rect())
-       
-       
+               
         #self.image.fill("red")
         #print('Oi')
         #remover depois
