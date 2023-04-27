@@ -1,11 +1,11 @@
 import pygame
 import sys
 
-
 pygame.init()
 screen = pygame.display.set_mode((800,500))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Navegando entre as telas do pygame")
+background = pygame.image.load("tests/PyGame/testBackground.png")
 
 font = pygame.font.Font(None, 60)
 
@@ -24,9 +24,35 @@ startButtonOffset = [
     300
 ]
 
+scroolSpeed = 1
+increaseAmount = 0.1
+scroolOffset = 0
+
 currentScreen = "home"
 
+def resetSpeed(initialSpeed):
+    return [initialSpeed,0]
+
+def checkResetBackground():
+    global scroolOffset, background
+    
+    if scroolOffset >= background.get_height():
+        scroolOffset = 0
+
+def increaseSpeed():
+    global scroolOffset, scroolSpeed, increaseAmount
+    
+    scroolOffset += scroolSpeed
+    scroolSpeed += increaseAmount
+
 def showHomeScreen():
+    global screen, scroolOffset, scroolSpeed, background, gameTitle, startButtonBackground, startButtonOffset, startText
+    
+    screen.blit(background, (0,scroolOffset))
+    screen.blit(background, (0,scroolOffset-background.get_height()))
+    increaseSpeed()
+    checkResetBackground()
+    
     screen.blit(gameTitle, ((screen.get_width()/2)-(gameTitle.get_width()/2),100))
     screen.blit(startButtonBackground, (startButtonOffset[0]-(startButtonBackground.get_width()/2),300))
     startButtonBackground.blit(startText, ((startButtonBackground.get_width()/2)-(startText.get_width()/2),(startButtonBackground.get_height()/2)-(startText.get_height()/2)))
