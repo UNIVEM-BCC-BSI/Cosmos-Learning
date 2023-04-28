@@ -13,6 +13,10 @@ gameTitle = font.render("Cosmos Learning", True, "blue")
 startText = font.render("Iniciar", True, "blue")
 
 startButtonBackground = pygame.surface.Surface((300,100))
+
+#startButtonBackground.set_alpha(0)
+#assim desaparece ate o texto de inicio de jogo
+
 startButtonBackground.fill("red")
 startButtonSize = list(startButtonBackground.get_rect())
 startButtonWidthOffset = 400
@@ -100,7 +104,9 @@ while True:
             if (mouse[0] == True and  mousePosition[0]>= startButtonOffset[0] and 
                 mousePosition[0]<= (startButtonOffset[0]+startButtonSize[2]) and 
                 mousePosition[1]>=startButtonOffset[1] and 
-                mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3])):
+                mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3]) and
+                currentScreen == "home"
+                ):
                 currentScreen = "game"
     
     

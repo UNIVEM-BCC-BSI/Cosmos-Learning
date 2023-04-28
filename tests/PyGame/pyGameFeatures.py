@@ -5,18 +5,18 @@ from sys import exit
 #TODO fazer a classe jogador
 
 #-----------------------------------------
-#O principal conceito no pygame é o de
-#Surface, pois é com base nele que se
-#cria objetos e os controla, existem
-#dois tipos de superfície, uma delas
-#é a janela e as outra são os itens
-#postos dentro da janela, vale lembrar
-#que é permitido colocar um item dentro
-#de outro item
-#------------------------------------------
+#|O principal conceito no pygame é o de   |
+#|Surface, pois é com base nele que se    |
+#|cria objetos e os controla, existem     |
+#|dois tipos de superfície, uma delas     |
+#|é a janela e as outra são os itens      |
+#|postos dentro da janela, vale lembrar   |
+#|que é permitido colocar um item dentro  |
+#|de outro item                           |
+#-----------------------------------------
 
 class Enemy:
-    def __init__(self,tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, cooldownDisparo,disparoSpeed, dano,speedX, speedLimitX,speedY, caminhoImagem, isMovingLeft):
+    def __init__(self, tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, cooldownDisparo,disparoSpeed, dano, speedX, speedLimitX, speedY, caminhoImagem, isMovingLeft):
         self.vida = vida
         self.tela = tela
         self.x = spawnPositionX
@@ -35,6 +35,8 @@ class Enemy:
         self.disparoSpeed = disparoSpeed
         self.isMovingLeft = isMovingLeft
         self.rect = list(self.image.get_rect())
+         
+        #print(type(self.image.get_rect()))
                
         #self.image.fill("red")
         #print('Oi')
