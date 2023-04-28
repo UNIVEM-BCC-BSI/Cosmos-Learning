@@ -104,7 +104,9 @@ class TiroInimigo():
         fimHitboxY = self.y
         inicioHitboxY = self.y + self.size[3]
         
-        if jogador.x >= inicioHitboxX and jogador.x <= fimHitboxX and jogador.y <= inicioHitboxY and jogador.y >= fimHitboxY:
+        if (jogador.x >= inicioHitboxX and jogador.x <= fimHitboxX and
+            jogador.y <= inicioHitboxY and
+            jogador.y >= fimHitboxY):
             return True 
     
     def update(self):
@@ -283,7 +285,9 @@ while True:
     
     nowSpawn = pygame.time.get_ticks()
     if nowSpawn-lastSpawn>=cooldownSpawn:
-        inimigos.append(Enemy(screen, 10, 100, 100, True, "tests/PyGame/starSprite.png", 300, 2, 5, 5, screen.get_width(), 1, "tests/PyGame/starSprite.png", True))
+        inimigos.append(Enemy(screen, 10, 100, 100, True, "tests/PyGame/starSprite.png", 
+                              300, 2, 5, 5, screen.get_width(), 1, 
+                              "tests/PyGame/starSprite.png", True))
         lastSpawn = pygame.time.get_ticks()
         
     for inimigo in inimigos:   
@@ -299,7 +303,8 @@ while True:
     for disparo in disparosInimigos:
         disparo.update()
         #Depois atualizar isso pra pegar a hitbox do player, como no inimigo
-        if disparo.getXPos() == testImage.get_rect().centerx + testImageX and disparo.getYPos() == testImageY:
+        if (disparo.getXPos() == testImage.get_rect().centerx + testImageX and 
+            disparo.getYPos() == testImageY):
             disparosInimigos.pop(disparosInimigos.index(disparo))
             #Dar dano ao player ou coisa parecida
             

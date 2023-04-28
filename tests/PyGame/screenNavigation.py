@@ -25,16 +25,27 @@ startButtonHeightOffset = 300
 #[1] = alguma coisa
 #[2] = width
 #[3] = height
+
 startButtonOffset = [
     startButtonWidthOffset,
     startButtonHeightOffset
 ]
 
+creditosNames = [font.render("Créditos", True, "blue"),
+                 font.render("B", True, "blue"),
+                 font.render("C", True, "blue")]
+creditOffsetX = 400
+creditsOffsetY = 100
+creditsMarginY = 50
+creditsTextHeight = font.get_height()
+creditsGoBack = font.render("Voltar", True, "blue")
+
+
 scroolSpeed = 1
 increaseAmount = 0.1
 scroolOffset = 0
 
-currentScreen = "home"
+currentScreen = "creditos"
 
 def resetSpeed(initialSpeed):
     return [initialSpeed,0]
@@ -60,16 +71,28 @@ def showHomeScreen():
     checkResetBackground()
     
     screen.blit(gameTitle, ((screen.get_width()/2)-(gameTitle.get_width()/2),100))
-    screen.blit(startButtonBackground, (startButtonOffset[0]-(startButtonBackground.get_width()/2), startButtonOffset[1]))
-    startButtonBackground.blit(startText, ((startButtonBackground.get_width()/2)-(startText.get_width()/2),(startButtonBackground.get_height()/2)-(startText.get_height()/2)))
+    screen.blit(startButtonBackground, (startButtonOffset[0]-(startButtonBackground.get_width()/2), 
+                                        startButtonOffset[1]))
+    startButtonBackground.blit(startText, ((startButtonBackground.get_width()/2)-(startText.get_width()/2),
+                                           (startButtonBackground.get_height()/2)-(startText.get_height()/2)))
     #[0] = X [1] = Y
 
 def showGame():
     screen.fill("red")
 
 def showCreditos():
-    pass
-
+    global screen, scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack
+    
+    screen.blit(background, (0,scroolOffset))
+    screen.blit(background, (0,scroolOffset-background.get_height()))
+    increaseSpeed()
+    checkResetBackground()
+    
+    screen.blit(creditsGoBack, (0,0))
+    for i in range(len(creditosNames)):
+        screen.blit(creditosNames[i], (creditOffsetX-(creditosNames[i].get_width()/2),(creditsOffsetY+(creditsTextHeight*i)+creditsMarginY)))
+        
+    
 while True:
          
     if currentScreen == "home":
@@ -101,6 +124,8 @@ while True:
             #print("y:", startButtonOffset[1],"-",startButtonOffset[1]+startButtonSize[3])
             #print("-------------")
             
+            
+            #Vai ter que fazer um dentro de cada função de pagina
             if (mouse[0] == True and  mousePosition[0]>= startButtonOffset[0] and 
                 mousePosition[0]<= (startButtonOffset[0]+startButtonSize[2]) and 
                 mousePosition[1]>=startButtonOffset[1] and 
