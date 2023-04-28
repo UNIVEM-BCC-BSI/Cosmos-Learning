@@ -28,7 +28,7 @@ class Enemy:
         self.y = spawnPositionY
         self.deveAtirar = atirador
         self.image = pygame.image.load(caminhoImagem)
-        self.size = self.image.get_rect().center
+        self.size = list(self.image.get_rect())
         self.disparo = pygame.image.load(caminhoDisparo)
         self.disparoDano = dano
         self.speedX = speedX
@@ -60,7 +60,7 @@ class Enemy:
         self.y += self.speedY
         
         self.tela.blit(self.image, (self.x, self.y))
-        print(self.x, self.y)
+        #print(self.x, self.y)
         
         self.now = pygame.time.get_ticks()
         if self.now - self.lastShoot >= self.shootCooldown:
@@ -71,11 +71,16 @@ class Enemy:
     def getLife(self):
         return self.vida
         
-    def getXPos(self):
-        return self.size[0] + self.x
     
-    def getYPos(self):
-        return self.size[1] + self.y
+    
+    def checkContact(self, disparo):
+        inicioHitboxX = self.x
+        fimHitboxX = self.x + self.size[2]
+        fimHitboxY = self.y
+        inicioHitboxY = self.y + self.size[3]
+        
+        if disparo.x >= inicioHitboxX and disparo.x <= fimHitboxX and disparo.y <= inicioHitboxY and disparo.y >= fimHitboxY:
+            return True    
     
     def sofrerDano(self, qtndDano):
         self.vida -= qtndDano
@@ -87,7 +92,7 @@ class TiroInimigo():
         self.image = disparo   
         self.speed = speed
         self.dano = dano
-        self.size = self.image.get_rect().centerx
+        self.size = list(self.image.get_rect())
         self.x = spawnX
         self.y = spawnY
         self.hit = False
@@ -96,10 +101,10 @@ class TiroInimigo():
         self.hit = True
     
     def getXPos(self):
-        return self.size + self.x
+        return self.x + self.size[2]
     
     def getYPos(self):
-        return self.y
+        return self.y + self.size[3]
     
     def update(self):
         self.tela.blit(self.image, (self.x,self.y))
@@ -289,7 +294,7 @@ while True:
     for inimigo in inimigos:   
         inimigo.update()
         for disparo in disparos:
-            if disparo.getXPos() == inimigo.getXPos() and disparo.getYPos() == inimigo.getYPos():
+            if inimigo.checkContact(disparo):
                 inimigo.sofrerDano(disparo.dano)
                 #parece não estar sofrendo dano
         if inimigo.getLife() <= 0:
@@ -297,6 +302,7 @@ while True:
         
     for disparo in disparosInimigos:
         disparo.update()
+        #Depois atualizar isso pra pegar a hitbox do player, como no inimigo
         if disparo.getXPos() == testImage.get_rect().centerx + testImageX and disparo.getYPos() == testImageY:
             disparos.pop(disparos.index(disparo))
             #Dar dano ao player ou coisa parecida
