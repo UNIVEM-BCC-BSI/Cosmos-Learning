@@ -28,12 +28,12 @@ class Enemy:
         self.y = spawnPositionY
         self.deveAtirar = atirador
         self.image = pygame.image.load(caminhoImagem)
+        self.size = self.image.get_rect().center
         self.disparo = pygame.image.load(caminhoDisparo)
         self.disparoDano = dano
         self.speedX = speedX
         self.LimitX = speedLimitX
         self.speedY = speedY
-        self.derrotado = False
         self.lastShoot = pygame.time.get_ticks()
         self.shootCooldown = cooldownDisparo
         self.now = pygame.time.get_ticks()
@@ -67,8 +67,16 @@ class Enemy:
              disparosInimigos.append(TiroInimigo(self.tela,self.disparo, self.disparoSpeed, self.disparoDano, self.x + (self.rect[2]/2), self.y + (self.rect[3]/2)))        
              self.lastShoot = pygame.time.get_ticks()    
             #Provavelmente vai precisar mexer no sistema de tiro inimigo depois
+    
+    def getLife(self):
+        return self.vida
         
-        
+    def getXPos(self):
+        return self.size[0] + self.x
+    
+    def getYPos(self):
+        return self.size[1] + self.y
+    
     def sofrerDano(self, qtndDano):
         self.vida -= qtndDano
 
@@ -79,12 +87,19 @@ class TiroInimigo():
         self.image = disparo   
         self.speed = speed
         self.dano = dano
+        self.size = self.image.get_rect().centerx
         self.x = spawnX
         self.y = spawnY
         self.hit = False
     
     def contato(self):
         self.hit = True
+    
+    def getXPos(self):
+        return self.size + self.x
+    
+    def getYPos(self):
+        return self.y
     
     def update(self):
         self.tela.blit(self.image, (self.x,self.y))
@@ -100,10 +115,17 @@ class Tiro:
         self.y = posicaoYPai
         self.speed = velocidadeTiro
         self.image = pygame.image.load("tests/PyGame/starSprite.png")
+        self.size = self.image.get_rect().centerx
         self.tela = tela
         self.dano = dano
         self.hit = False
-        
+    
+    def getXPos(self):
+        return self.size + self.x
+    
+    def getYPos(self):
+        return self.y
+    
     def contato(self):
         self.hit = True
     
@@ -264,12 +286,20 @@ while True:
         inimigos.append(Enemy(screen, 10, 100, 100, True, "tests/PyGame/starSprite.png", 300, 2, 5, 5, screen.get_width(), 1, "tests/PyGame/starSprite.png", True))
         lastSpawn = pygame.time.get_ticks()
         
-    for inimigo in inimigos:
-        
+    for inimigo in inimigos:   
         inimigo.update()
+        for disparo in disparos:
+            if disparo.getXPos() == inimigo.getXPos() and disparo.getYPos() == inimigo.getYPos():
+                inimigo.sofrerDano(disparo.dano)
+                #parece não estar sofrendo dano
+        if inimigo.getLife() <= 0:
+            inimigos.pop(inimigos.index(inimigo))
         
     for disparo in disparosInimigos:
         disparo.update()
+        if disparo.getXPos() == testImage.get_rect().centerx + testImageX and disparo.getYPos() == testImageY:
+            disparos.pop(disparos.index(disparo))
+            #Dar dano ao player ou coisa parecida
             
     
     
