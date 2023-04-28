@@ -1,13 +1,8 @@
 import pygame
 from sys import exit
-from random import randrange
 
-
-#TODO diminuir a vida do inimigo
-#TODO adicionar dano aos disparos
-#TODO retrabalhar sistema de inimigos (+/- completo, falta adicionar colisao e dano)
 #TODO fazer um metodo para retornar a posição dos tiros, player e inimigos
-
+#TODO fazer a classe jogador
 
 #-----------------------------------------
 #O principal conceito no pygame é o de
@@ -48,31 +43,30 @@ class Enemy:
     def update(self):
         global disparosInimigos
             
-        if self.x > self.tela.get_width():
-             self.isMovingLeft = True
-        elif self.x < 0:
-             self.isMovingLeft = False
-        if self.isMovingLeft:
-            self.x -= self.speedX
-        else:
-             self.x += self.speedX
+        if not self.y > self.tela.get_height() + 100:
+            if self.x > self.tela.get_width():
+                self.isMovingLeft = True
+            elif self.x < 0:
+                self.isMovingLeft = False
+            if self.isMovingLeft:
+                self.x -= self.speedX
+            else:
+                self.x += self.speedX
+                
+            self.y += self.speedY
             
-        self.y += self.speedY
-        
-        self.tela.blit(self.image, (self.x, self.y))
-        #print(self.x, self.y)
-        
-        self.now = pygame.time.get_ticks()
-        if self.now - self.lastShoot >= self.shootCooldown:
-             disparosInimigos.append(TiroInimigo(self.tela,self.disparo, self.disparoSpeed, self.disparoDano, self.x + (self.rect[2]/2), self.y + (self.rect[3]/2)))        
-             self.lastShoot = pygame.time.get_ticks()    
-            #Provavelmente vai precisar mexer no sistema de tiro inimigo depois
+            self.tela.blit(self.image, (self.x, self.y))
+            #print(self.x, self.y)
     
+            self.now = pygame.time.get_ticks()
+            if self.now - self.lastShoot >= self.shootCooldown:
+                disparosInimigos.append(TiroInimigo(self.tela,self.disparo, self.disparoSpeed, self.disparoDano, self.x + (self.rect[2]/2), self.y + (self.rect[3]/2)))        
+                self.lastShoot = pygame.time.get_ticks()    
+                #Provavelmente vai precisar mexer no sistema de tiro inimigo depois
+        
     def getLife(self):
         return self.vida
         
-    
-    
     def checkContact(self, disparo):
         inicioHitboxX = self.x
         fimHitboxX = self.x + self.size[2]
@@ -97,14 +91,20 @@ class TiroInimigo():
         self.y = spawnY
         self.hit = False
     
-    def contato(self):
-        self.hit = True
-    
     def getXPos(self):
         return self.x + self.size[2]
     
     def getYPos(self):
         return self.y + self.size[3]
+    
+    def checkContact(self, jogador):
+        inicioHitboxX = self.x
+        fimHitboxX = self.x + self.size[2]
+        fimHitboxY = self.y
+        inicioHitboxY = self.y + self.size[3]
+        
+        if jogador.x >= inicioHitboxX and jogador.x <= fimHitboxX and jogador.y <= inicioHitboxY and jogador.y >= fimHitboxY:
+            return True 
     
     def update(self):
         self.tela.blit(self.image, (self.x,self.y))
@@ -123,7 +123,6 @@ class Tiro:
         self.size = self.image.get_rect().centerx
         self.tela = tela
         self.dano = dano
-        self.hit = False
     
     def getXPos(self):
         return self.size + self.x
@@ -131,8 +130,6 @@ class Tiro:
     def getYPos(self):
         return self.y
     
-    def contato(self):
-        self.hit = True
     
     def update(self):
         self.tela.blit(self.image, (self.x,self.y))
@@ -202,13 +199,11 @@ cooldownSpawn = 3500
 lastDisparo = pygame.time.get_ticks()
 lastSpawn = pygame.time.get_ticks()
 
-
 while True:
     
     #screen.fill("black")
     #Como o metodo blit desenha na tela, sempre a pinta de preto para permitir
     #a movimentação do personagem
-    
     
     for event in pygame.event.get():
         #Gera uma lista de eventos registrados pelo pygame
@@ -230,8 +225,7 @@ while True:
 #                testImageX -= 1
 #            if event.key == pygame.K_d:
 #                testImageX += 1
-    
-                
+               
     screen.blit(background, (0,scrollOffset))
     screen.blit(background, (0, scrollOffset-background.get_height()))
     
@@ -280,7 +274,7 @@ while True:
     #garante que sempre serão mostrados em cima de qualquer surface
     for disparo in disparos:
         disparo.update()
-        if disparo.y < -screen.get_height()-100:
+        if disparo.getYPos() < -100:
             disparos.pop(disparos.index(disparo))
             
     #for disparo in disparosInimigos:
@@ -296,6 +290,7 @@ while True:
         for disparo in disparos:
             if inimigo.checkContact(disparo):
                 inimigo.sofrerDano(disparo.dano)
+                disparos.pop(disparos.index(disparo))
                 #parece não estar sofrendo dano
         if inimigo.getLife() <= 0:
             inimigos.pop(inimigos.index(inimigo))
@@ -304,11 +299,9 @@ while True:
         disparo.update()
         #Depois atualizar isso pra pegar a hitbox do player, como no inimigo
         if disparo.getXPos() == testImage.get_rect().centerx + testImageX and disparo.getYPos() == testImageY:
-            disparos.pop(disparos.index(disparo))
+            disparosInimigos.pop(disparosInimigos.index(disparo))
             #Dar dano ao player ou coisa parecida
             
-    
-    
     pygame.display.update()
     #Sem isso a tela fica completamente preta
     

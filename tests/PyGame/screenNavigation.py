@@ -15,13 +15,15 @@ startText = font.render("Iniciar", True, "blue")
 startButtonBackground = pygame.surface.Surface((300,100))
 startButtonBackground.fill("red")
 startButtonSize = list(startButtonBackground.get_rect())
+startButtonWidthOffset = 400
+startButtonHeightOffset = 300
 #[0] = alguma coisa
 #[1] = alguma coisa
 #[2] = width
 #[3] = height
 startButtonOffset = [
-    screen.get_width()/2,
-    300
+    startButtonWidthOffset,
+    startButtonHeightOffset
 ]
 
 scroolSpeed = 1
@@ -54,7 +56,7 @@ def showHomeScreen():
     checkResetBackground()
     
     screen.blit(gameTitle, ((screen.get_width()/2)-(gameTitle.get_width()/2),100))
-    screen.blit(startButtonBackground, (startButtonOffset[0]-(startButtonBackground.get_width()/2),300))
+    screen.blit(startButtonBackground, (startButtonOffset[0]-(startButtonBackground.get_width()/2), startButtonOffset[1]))
     startButtonBackground.blit(startText, ((startButtonBackground.get_width()/2)-(startText.get_width()/2),(startButtonBackground.get_height()/2)-(startText.get_height()/2)))
     #[0] = X [1] = Y
 
