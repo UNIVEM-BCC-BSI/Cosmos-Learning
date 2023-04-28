@@ -89,7 +89,6 @@ class TiroInimigo():
         self.size = list(self.image.get_rect())
         self.x = spawnX
         self.y = spawnY
-        self.hit = False
     
     def getXPos(self):
         return self.x + self.size[2]
