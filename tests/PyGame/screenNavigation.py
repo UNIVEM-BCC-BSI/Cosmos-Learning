@@ -11,6 +11,7 @@ font = pygame.font.Font(None, 60)
 
 gameTitle = font.render("Cosmos Learning", True, "blue")
 startText = font.render("Iniciar", True, "blue")
+homeCreditsText = font.render("Créditos", True, "blue")
 
 startButtonBackground = pygame.surface.Surface((300,100))
 
@@ -45,7 +46,7 @@ scroolSpeed = 1
 increaseAmount = 0.1
 scroolOffset = 0
 
-currentScreen = "creditos"
+currentScreen = "home"
 
 def resetSpeed(initialSpeed):
     return [initialSpeed,0]
@@ -76,7 +77,11 @@ def showHomeScreen():
     startButtonBackground.blit(startText, ((startButtonBackground.get_width()/2)-(startText.get_width()/2),
                                            (startButtonBackground.get_height()/2)-(startText.get_height()/2)))
     #[0] = X [1] = Y
-
+    #Falta fazer o butão de Créditos
+    screen.blit(homeCreditsText,(screen.get_width()/2-(homeCreditsText.get_width()/2),(startButtonOffset[1]+startButtonBackground.get_height()+50)))
+    #Fazer o código pra executar o botão
+    
+    
 def showGame():
     screen.fill("red")
 
@@ -124,8 +129,6 @@ while True:
             #print("y:", startButtonOffset[1],"-",startButtonOffset[1]+startButtonSize[3])
             #print("-------------")
             
-            
-            #Vai ter que fazer um dentro de cada função de pagina
             if (mouse[0] == True and  mousePosition[0]>= startButtonOffset[0] and 
                 mousePosition[0]<= (startButtonOffset[0]+startButtonSize[2]) and 
                 mousePosition[1]>=startButtonOffset[1] and 
@@ -133,6 +136,11 @@ while True:
                 currentScreen == "home"
                 ):
                 currentScreen = "game"
+                
+            elif (mouse[0] == True and mousePosition[0]>=0 and 
+                  mousePosition[0]<= creditsGoBack.get_width() and 
+                  currentScreen == "creditos"):
+                currentScreen = "home"
     
     
     clock.tick(60)
