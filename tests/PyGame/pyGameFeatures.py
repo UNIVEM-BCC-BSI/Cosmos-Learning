@@ -15,6 +15,75 @@ from sys import exit
 #|de outro item                           |
 #-----------------------------------------
 
+class Player():
+    def __init__(self, tela, playerSprite, disparoSprite, vida, fontVida, fontVidaSize, startXPos, startYPos, Xspeed, Yspeed, limitXPos, limitYPos, disparoCooldown, disparoDano, shootSpeed):
+        self.tela = tela
+        self.playerImage = pygame.image.load(playerSprite)
+        self.size = list(self.playerImage.get_rect())
+        self.shootImage = pygame.image.load(disparoSprite)
+        self.vida = vida
+        self.font = pygame.font.Font(fontVida, fontVidaSize)
+        self.x = startXPos
+        self.y = startYPos
+        self.Xspeed = Xspeed
+        self.ySpeed = Yspeed
+        self.limitPos = [limitXPos, limitYPos]
+        self.cooldown = disparoCooldown
+        self.shootDamage = disparoDano
+        self.shootSpeed = shootSpeed
+        self.now = pygame.time.get_ticks()
+        self.lastShoot = pygame.time.get_ticks()
+        self.derrotado = False
+        
+    def checkContact(self, disparo):
+        inicioHitboxX = self.x
+        fimHitboxX = self.x + self.size[2]
+        fimHitboxY = self.y
+        inicioHitboxY = self.y + self.size[3]
+        
+        if disparo.x >= inicioHitboxX and disparo.x <= fimHitboxX and disparo.y <= inicioHitboxY and disparo.y >= fimHitboxY:
+            self.sofrerDano(disparo.dano)
+            return True
+
+    def sofrerDano(self, qtndDano):
+        self.vida -= qtndDano
+        if self.vida <= 0 :
+            self.derrotado = True
+        
+    def update(self):
+        if self.derrotado == False:
+            
+            self.now = pygame.time.get_ticks()
+            keys = pygame.key.get_pressed()
+            
+            if 0 <= self.y and keys[pygame.K_w]:
+                #Se existe pygame.K_w dentro de keys
+                self.y -= self.ySpeed
+            if self.limitPos[1] >= self.y and keys[pygame.K_s]:
+                self.y += self.ySpeed
+            
+            if 0 <= self.x and keys[pygame.K_a]:
+                self.x -= self.Xspeed
+            if self.limitPos[0] >= self.x and keys[pygame.K_d]:
+                self.x += self.Xspeed
+            
+            if keys[pygame.K_SPACE]:
+                nowDisparo = pygame.time.get_ticks()
+                if nowDisparo - lastDisparo >= cooldownDisparo:
+                    disparos.append(Tiro(self.tela, self.x, self.y, self.shootSpeed, self.shootDamage))
+                    #permite manter varios disparos ao mesmo tempo
+            
+            self.tela.blit(self.playerImage, (self.x, self.y))
+            self.updateVida()
+        else:
+            pass
+            #Sistema para voltar para tela de inicio
+        
+    def updateVida(self):
+        textoVida = "Vida: " + str(self.vida)
+        textoVida = self.font.render(textoVida, True, "white")
+        self.tela.blit(textoVida, (0,0))
+        
 class Enemy:
     def __init__(self, tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, cooldownDisparo,disparoSpeed, dano, speedX, speedLimitX, speedY, caminhoImagem, isMovingLeft):
         self.vida = vida
@@ -165,7 +234,6 @@ blue.fill("blue")
 green = pygame.Surface((100,50))
 green.fill("green")
 
-testImage = pygame.image.load("tests/PyGame/starSprite.png")
 #Permite carregar uma imagem para mais tarde ser usada como Surface
 background = pygame.image.load("tests/PyGame/testBackground.png")
 scrollSpeed = 1
@@ -187,8 +255,6 @@ textSurface = testText.render("Testando PyGame",False,"orange")
 #o texto fica mais "arredondado"
 
 #Posição X do testImage
-testImageX = 500 
-testImageY = 100
 
 disparos = []
 inimigos = []
@@ -201,6 +267,8 @@ cooldownSpawn = 3500
 #diferença de ticks necessaria para poder atirar
 lastDisparo = pygame.time.get_ticks()
 lastSpawn = pygame.time.get_ticks()
+
+jogador = Player(screen, "tests/PyGame/starSprite.png", "tests/PyGame/starSprite.png", 10, None, 30, 400, 400, 2, 2, screen.get_width(), screen.get_height(), cooldownDisparo, 5, 4)
 
 while True:
     
@@ -238,22 +306,6 @@ while True:
     if scrollOffset >= background.get_height():
         scrollOffset = 0
         
-    #Um outro jeito de checar as teclas apertadas
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        #Se existe pygame.K_w dentro de keys
-        testImageY -= 1
-    if keys[pygame.K_s]:
-        testImageY += 1
-    if keys[pygame.K_a]:
-        testImageX -= 1
-    if keys[pygame.K_d]:
-        testImageX += 1
-    if keys[pygame.K_SPACE]:
-        nowDisparo = pygame.time.get_ticks()
-        if nowDisparo - lastDisparo >= cooldownDisparo:
-            disparos.append(Tiro(screen, testImageX, testImageY, 2,5))
-            #permite manter varios disparos ao mesmo tempo
     
     screen.blit(testSurface, (200,0))
     #Posiciona o testSurface dentro da Screen
@@ -265,13 +317,14 @@ while True:
     screen.blit(green, (200,50))
     #Perceba que pygame permite sobreposição
     
-    screen.blit(testImage, (testImageX, testImageY))
     #Perceber que fica desenhando em cima da imagem anterior enquanto move
     
     #A tupla esta passando a margem que o objeto deve ter em X e Y
     #Lembrando que o ponto X = 0 e Y = 0 no pygame é no canto superior esquerdo
     
     screen.blit(textSurface,(500, 200))
+    
+    jogador.update()
     
     #Como os disparos são os ultimos a serem desenhados na tela
     #garante que sempre serão mostrados em cima de qualquer surface
@@ -303,8 +356,7 @@ while True:
     for disparo in disparosInimigos:
         disparo.update()
         #Depois atualizar isso pra pegar a hitbox do player, como no inimigo
-        if (disparo.getXPos() == testImage.get_rect().centerx + testImageX and 
-            disparo.getYPos() == testImageY):
+        if jogador.checkContact(disparo):
             disparosInimigos.pop(disparosInimigos.index(disparo))
             #Dar dano ao player ou coisa parecida
             
