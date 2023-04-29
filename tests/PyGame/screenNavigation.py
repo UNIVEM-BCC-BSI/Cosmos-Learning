@@ -136,7 +136,14 @@ while True:
                 currentScreen == "home"
                 ):
                 currentScreen = "game"
-                
+            elif (mouse[0] == True and
+                  mousePosition[0]>=startButtonOffset[0]-startButtonBackground.get_width()/2 and
+                  mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and
+                  mousePosition[1]>= (startButtonOffset[1]+startButtonBackground.get_height()+50) and
+                  mousePosition[1] <= ((startButtonOffset[1]+startButtonBackground.get_height()+50)+homeCreditsText.get_height()) and
+                  currentScreen == "home"
+                  ):
+                currentScreen = "creditos"
             elif (mouse[0] == True and mousePosition[0]>=0 and 
                   mousePosition[0]<= creditsGoBack.get_width() and 
                   currentScreen == "creditos"):
