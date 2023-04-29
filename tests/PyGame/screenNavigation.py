@@ -81,7 +81,6 @@ def showHomeScreen():
     screen.blit(homeCreditsText,(screen.get_width()/2-(homeCreditsText.get_width()/2),(startButtonOffset[1]+startButtonBackground.get_height()+50)))
     #Fazer o código pra executar o botão
     
-    
 def showGame():
     screen.fill("red")
 
@@ -129,8 +128,9 @@ while True:
             #print("y:", startButtonOffset[1],"-",startButtonOffset[1]+startButtonSize[3])
             #print("-------------")
             
-            if (mouse[0] == True and  mousePosition[0]>= startButtonOffset[0] and 
-                mousePosition[0]<= (startButtonOffset[0]+startButtonSize[2]) and 
+            if (mouse[0] == True and  
+                mousePosition[0]>= startButtonOffset[0]-startButtonBackground.get_width()/2 and 
+                mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and 
                 mousePosition[1]>=startButtonOffset[1] and 
                 mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3]) and
                 currentScreen == "home"
