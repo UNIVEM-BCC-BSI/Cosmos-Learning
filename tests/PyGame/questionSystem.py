@@ -1,9 +1,8 @@
 import pygame
 import random
 from sys import exit
-import time
 
-#TODO fazer sistema de click nas respostas
+#TODO fazer sistema de click nas respostasz
 
 pygame.init()
 screen = pygame.display.set_mode((800,500))
@@ -91,12 +90,21 @@ for i in perguntas:
     
 
 while True:
+    con = 0
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse = list(pygame.mouse.get_pressed())
+            mousePosition = list(pygame.mouse.get_pos())
+            for i in range(len(objetos[con].respostas)):
+                if (mouse[0] and mousePosition[0]>=200 and
+                mousePosition[0] <= 200+objetos[con].respostas[i].get_height() and
+                mousePosition[1]>= 100+objetos[con].text.get_height()+50 + ((20 + objetos[con].respostas[i].get_height())*i)):
+                    print(objetos[con].gotRight(objetos[con].respostas[i]))
     
-    con = 0
     objetos[con].update()
     
     
