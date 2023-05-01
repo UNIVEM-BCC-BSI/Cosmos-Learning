@@ -102,7 +102,9 @@ while True:
             for i in range(len(objetos[con].respostas)):
                 if (mouse[0] and mousePosition[0]>=200 and
                 mousePosition[0] <= 200+objetos[con].respostas[i].get_height() and
-                mousePosition[1]>= 100+objetos[con].text.get_height()+50 + ((20 + objetos[con].respostas[i].get_height())*i)):
+                mousePosition[1]>= 100+objetos[con].text.get_height()+50 + ((20 + objetos[con].respostas[i].get_height())*i) and
+                mousePosition[1] <= (100+objetos[con].text.get_height()+50 + ((20 + objetos[con].respostas[i].get_height())*(i+1)))
+                ):
                     print(objetos[con].gotRight(objetos[con].respostas[i]))
     
     objetos[con].update()
