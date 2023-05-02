@@ -217,7 +217,7 @@ class Tiro:
         
 pygame.init()
 #Inicia o PyGame
-screen = pygame.display.set_mode((800,500))
+screen = pygame.display.set_mode((800,500), pygame.FULLSCREEN)
 #Gera uma janela de width 800 e height 500
 screen.fill("white")
 #Preenche toda a Superfice com a cor desejada

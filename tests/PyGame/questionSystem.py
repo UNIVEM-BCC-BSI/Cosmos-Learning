@@ -6,7 +6,7 @@ from sys import exit
 #exemplo [[caminho1], [caminho2], etc]
 
 pygame.init()
-screen = pygame.display.set_mode((800,500))
+screen = pygame.display.set_mode((800,500), pygame.FULLSCREEN)
 pygame.display.set_caption("Teste de sistema de perguntas")
 clock =pygame.time.Clock()
 
