@@ -2,7 +2,8 @@ import pygame
 import random
 from sys import exit
 
-#TODO fazer sistema de click nas respostasz
+#TODO talvez posso organizar a parte de acertou resposta avançar para outra sublista dentro de um array
+#exemplo [[caminho1], [caminho2], etc]
 
 pygame.init()
 screen = pygame.display.set_mode((800,500))
@@ -92,6 +93,7 @@ for i in perguntas:
 while True:
     con = 0
     
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -101,16 +103,17 @@ while True:
             mousePosition = list(pygame.mouse.get_pos())
             for i in range(len(objetos[con].respostas)):
                 if (mouse[0] and mousePosition[0]>=200 and
-                mousePosition[0] <= 200+objetos[con].respostas[i].get_height() and
+                mousePosition[0] <= 200+objetos[con].respostas[i].get_width() and
                 mousePosition[1]>= 100+objetos[con].text.get_height()+50 + ((20 + objetos[con].respostas[i].get_height())*i) and
                 mousePosition[1] <= (100+objetos[con].text.get_height()+50 + ((20 + objetos[con].respostas[i].get_height())*(i+1)))
                 ):
                     print(objetos[con].gotRight(objetos[con].respostas[i]))
+                    if objetos[con].gotRight(objetos[con].respostas[i]):
+                        objetos.pop(0)
+                        screen.fill("black")
+                        #ir para gameplay ou outra coisa
     
     objetos[con].update()
-    
-    
-    
     
     clock.tick(60)        
     pygame.display.update()
