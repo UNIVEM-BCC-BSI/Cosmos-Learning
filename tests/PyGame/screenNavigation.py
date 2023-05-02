@@ -2,7 +2,7 @@ import pygame
 import sys
 
 pygame.init()
-screen = pygame.display.set_mode((800,500))
+screen = pygame.display.set_mode((800,500), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 pygame.display.set_caption("Navegando entre as telas do pygame")
 background = pygame.image.load("tests/PyGame/testBackground.png")
