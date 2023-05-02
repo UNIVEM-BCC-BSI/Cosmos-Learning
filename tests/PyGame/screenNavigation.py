@@ -32,9 +32,13 @@ startButtonOffset = [
     startButtonHeightOffset
 ]
 
-creditosNames = [font.render("Créditos", True, "blue"),
-                 font.render("B", True, "blue"),
-                 font.render("C", True, "blue")]
+creditosNames = [font.render("Créditos", True, "white"),
+                 font.render("Lucas Meirelles de Souza", True, "white"),
+                 font.render("Guilherme Ramos Vaz", True, "white"),
+                 font.render("Leandro Poletti de Oliveira", True, "white"),
+                 font.render("Luan Alexandre Mazzotti Girotto", True, "white"),
+                 font.render("Pedro Santilli de Souza", True, "white")
+                 ]
 creditOffsetX = 400
 creditsOffsetY = 100
 creditsMarginY = 50

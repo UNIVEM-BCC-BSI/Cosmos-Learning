@@ -34,7 +34,13 @@ class Player():
         self.now = pygame.time.get_ticks()
         self.lastShoot = pygame.time.get_ticks()
         self.derrotado = False
-        
+        self.vidaSurfaces = []
+        surfaceSize = 200 // vida
+        for i in range(self.vida):
+            addSurface = pygame.surface.Surface((surfaceSize,25))
+            addSurface.fill("red")
+            self.vidaSurfaces.append(addSurface)
+
     def checkContact(self, disparo):
         inicioHitboxX = self.x
         fimHitboxX = self.x + self.size[2]
@@ -80,9 +86,11 @@ class Player():
             #Sistema para voltar para tela de inicio
         
     def updateVida(self):
-        textoVida = "Vida: " + str(self.vida)
-        textoVida = self.font.render(textoVida, True, "white")
-        self.tela.blit(textoVida, (0,0))
+        #textoVida = "Vida: " + str(self.vida)
+        #textoVida = self.font.render(textoVida, True, "white")
+        #self.tela.blit(textoVida, (0,0))
+        for i in range(self.vida):
+            self.tela.blit(self.vidaSurfaces[i], (self.vidaSurfaces[i].get_width()*i,0))
         
 class Enemy:
     def __init__(self, tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, cooldownDisparo,disparoSpeed, dano, speedX, speedLimitX, speedY, caminhoImagem, isMovingLeft):
@@ -224,15 +232,15 @@ Clock = pygame.time.Clock()
 #pygame.display.set_mode((300,200))
 #Sobrescreve o display.set_mode anterior
 
-testSurface = pygame.Surface((200,100))
+#testSurface = pygame.Surface((200,100))
 #Gera uma Surface (Superficie) de width 200 e height 100
-testSurface.fill("red")
+#testSurface.fill("red")
 
-blue = pygame.Surface((100,50))
-blue.fill("blue")
+#blue = pygame.Surface((100,50))
+#blue.fill("blue")
 
-green = pygame.Surface((100,50))
-green.fill("green")
+#green = pygame.Surface((100,50))
+#green.fill("green")
 
 #Permite carregar uma imagem para mais tarde ser usada como Surface
 background = pygame.image.load("tests/PyGame/testBackground.png")
@@ -307,14 +315,14 @@ while True:
         scrollOffset = 0
         
     
-    screen.blit(testSurface, (200,0))
+    #screen.blit(testSurface, (200,0))
     #Posiciona o testSurface dentro da Screen
     #A cada frama atualiza a posição
     
-    testSurface.blit(blue, (0,0))
+    #testSurface.blit(blue, (0,0))
     #Se estiver fora do alcance do display usado não vai renderizar
     
-    screen.blit(green, (200,50))
+    #screen.blit(green, (200,50))
     #Perceba que pygame permite sobreposição
     
     #Perceber que fica desenhando em cima da imagem anterior enquanto move
@@ -322,7 +330,7 @@ while True:
     #A tupla esta passando a margem que o objeto deve ter em X e Y
     #Lembrando que o ponto X = 0 e Y = 0 no pygame é no canto superior esquerdo
     
-    screen.blit(textSurface,(500, 200))
+    #screen.blit(textSurface,(500, 200))
     
     jogador.update()
     
