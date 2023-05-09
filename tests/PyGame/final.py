@@ -393,16 +393,16 @@ def showHomeScreen():
     #Fazer o código pra executar o botão
     
 def showGame():
-    global screen, background, scroolOffset, background, scroolSpeed, jogador, disparos, lastSpawn, cooldownSpawn, inimigos, disparosInimigos
+    global screen, background, scroolOffset, background, scroolSpeed, jogador, disparos, lastSpawn, cooldownSpawn, inimigos, disparosInimigos, currentScreen
     
     screen.blit(background, (0,scroolOffset))
     screen.blit(background, (0, scroolOffset-background.get_height()))
     
-    scroolOffset += scrollSpeed
-    scrollSpeed += 0.01
+    scroolOffset += scroolSpeed
+    scroolSpeed += 0.01
     
     if scroolOffset >= background.get_height():
-        scrollOffset = 0
+        scroolOffset = 0
     
     jogador.update()
     for disparo in disparos:
@@ -433,6 +433,9 @@ def showGame():
         if jogador.checkContact(disparo):
             disparosInimigos.pop(disparosInimigos.index(disparo))
             #Dar dano ao player ou coisa parecida
+            
+    if jogador.vida == 0:
+        currentScreen = "home"
 
 def showCreditos():
     global screen, scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack
@@ -446,6 +449,9 @@ def showCreditos():
     for i in range(len(creditosNames)):
         screen.blit(creditosNames[i], (creditOffsetX-(creditosNames[i].get_width()/2),(creditsOffsetY+(creditsTextHeight*i)+creditsMarginY)))
         
+def showPergunta():
+    global objetos
+    show = random.choice(seq)
 
 #COISAS DENTRO DO WHILE TRUE
 while True:
