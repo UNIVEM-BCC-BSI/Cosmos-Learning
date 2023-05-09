@@ -1,5 +1,5 @@
 import pygame
-import sys
+from sys import exit
 
 pygame.init()
 screen = pygame.display.set_mode((800,500), pygame.FULLSCREEN)
@@ -113,7 +113,7 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-            sys.exit()
+            exit()
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse = list(pygame.mouse.get_pressed())
