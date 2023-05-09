@@ -282,7 +282,8 @@ cooldownSpawn = 3500
 lastDisparo = pygame.time.get_ticks()
 lastSpawn = pygame.time.get_ticks()
 
-jogador = Player(screen, "tests/PyGame/starSprite.png", "tests/PyGame/starSprite.png", 10, None, 30, 400, 400, 2, 2, screen.get_width(), screen.get_height(), cooldownDisparo, 5, 4)
+maxVida = 10
+jogador = Player(screen, "tests/PyGame/starSprite.png", "tests/PyGame/starSprite.png", maxVida, None, 30, 400, 400, 2, 2, screen.get_width(), screen.get_height(), cooldownDisparo, 5, 4)
 
 #QUESTION SYTEM VARIABLES
 fontPergunta = pygame.font.Font(None, 50)
@@ -393,7 +394,7 @@ def showHomeScreen():
     #Fazer o código pra executar o botão
     
 def showGame():
-    global screen, background, scroolOffset, background, scroolSpeed, jogador, disparos, lastSpawn, cooldownSpawn, inimigos, disparosInimigos, currentScreen
+    global screen, background, scroolOffset, background, scroolSpeed, jogador, disparos, lastSpawn, cooldownSpawn, inimigos, disparosInimigos, currentScreen, maxVida
     
     screen.blit(background, (0,scroolOffset))
     screen.blit(background, (0, scroolOffset-background.get_height()))
@@ -435,7 +436,12 @@ def showGame():
             #Dar dano ao player ou coisa parecida
             
     if jogador.vida == 0:
-        currentScreen = "home"
+        currentScreen = "selectQuestion"
+        screen.fill("black")
+        inimigos = []
+        disparosInimigos = []
+        disparos = []
+        
 
 def showCreditos():
     global screen, scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack
@@ -448,10 +454,39 @@ def showCreditos():
     screen.blit(creditsGoBack, (0,0))
     for i in range(len(creditosNames)):
         screen.blit(creditosNames[i], (creditOffsetX-(creditosNames[i].get_width()/2),(creditsOffsetY+(creditsTextHeight*i)+creditsMarginY)))
-        
+
+show = None
+
+def selectQuestion():
+    global objetos, currentScreen, jogador, maxVida, show
+    show = random.choice(objetos)
+    currentScreen = "perguntar"
+      
 def showPergunta():
-    global objetos
-    show = random.choice(seq)
+    global objetos, currentScreen, jogador, maxVida, show
+    
+    show.update()
+    
+    
+    if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse = list(pygame.mouse.get_pressed())
+            mousePosition = list(pygame.mouse.get_pos())
+            for i in range(len(show.respostas)):
+                if (mouse[0] and mousePosition[0]>=200 and
+                mousePosition[0] <= 200+show.respostas[i].get_width() and
+                mousePosition[1]>= 100+show.text.get_height()+50 + ((20 + show.respostas[i].get_height())*i) and
+                mousePosition[1] <= (100+show.text.get_height()+50 + ((20 + show.respostas[i].get_height())*(i+1)))
+                ):
+                    #print(show.gotRight(show.respostas[i]))
+                    if show.gotRight(show.respostas[i]):
+                        objetos.pop(0)
+                        screen.fill("black")
+                        currentScreen = "game"
+                        jogador.vida = maxVida
+                        jogador.derrotado = False
+                    else:
+                        currentScreen = "home"
+                        #ir para gameplay ou outra coisa
 
 #COISAS DENTRO DO WHILE TRUE
 while True:
@@ -462,6 +497,10 @@ while True:
         showGame()
     elif currentScreen == "creditos":
         showCreditos()
+    elif currentScreen == "perguntar":
+        showPergunta()
+    elif currentScreen == "selectQuestion":
+        selectQuestion()
         
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
