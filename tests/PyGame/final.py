@@ -6,7 +6,11 @@ pygame.init()
 screen = pygame.display.set_mode((800,500), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 pygame.display.set_caption("Teste projeto finalizado")
+#Fazer array de backgrounds aq, para nivel
 background = pygame.image.load("tests/PyGame/testBackground.png")
+levelBackgrounds = [background, background]
+currentLevel = -1
+
 
 #CLASSES
 
@@ -378,6 +382,41 @@ def increaseSpeed():
 def showHomeScreen():
     global screen, scroolOffset, scroolSpeed, background, gameTitle, startButtonBackground, startButtonOffset, startText
     
+    for event in pygame.events.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse = list(pygame.mouse.get_pressed())
+            #[0] = botao esquerdo
+            #[1] = scroll
+            #[2] = botao direito
+            
+            mousePosition = list(pygame.mouse.get_pos())
+            #[0] = X
+            #[1] = Y
+            
+            #print(mousePosition)
+            #print(mouse)
+            #print("--------------\nPosicao desejada:")
+            #print("x:", startButtonOffset[0],"-",startButtonOffset[0]+startButtonSize[2])
+            #print("y:", startButtonOffset[1],"-",startButtonOffset[1]+startButtonSize[3])
+            #print("-------------")
+            
+            if (mouse[0] == True and  
+                mousePosition[0]>= startButtonOffset[0]-startButtonBackground.get_width()/2 and 
+                mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and 
+                mousePosition[1]>=startButtonOffset[1] and 
+                mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3]) and
+                currentScreen == "home"
+                ):
+                currentScreen = "selectLevel"
+            elif (mouse[0] == True and
+                  mousePosition[0]>=startButtonOffset[0]-startButtonBackground.get_width()/2 and
+                  mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and
+                  mousePosition[1]>= (startButtonOffset[1]+startButtonBackground.get_height()+50) and
+                  mousePosition[1] <= ((startButtonOffset[1]+startButtonBackground.get_height()+50)+homeCreditsText.get_height()) and
+                  currentScreen == "home"
+                  ):
+                currentScreen = "creditos"
+    
     screen.blit(background, (0,scroolOffset))
     screen.blit(background, (0,scroolOffset-background.get_height()))
     increaseSpeed()
@@ -392,17 +431,19 @@ def showHomeScreen():
     #Falta fazer o butão de Créditos
     screen.blit(homeCreditsText,(screen.get_width()/2-(homeCreditsText.get_width()/2),(startButtonOffset[1]+startButtonBackground.get_height()+50)))
     #Fazer o código pra executar o botão
-    
+ 
+ 
+nextLevel = False   
 def showGame():
-    global screen, background, scroolOffset, background, scroolSpeed, jogador, disparos, lastSpawn, cooldownSpawn, inimigos, disparosInimigos, currentScreen, maxVida
+    global screen, levelBackgrounds, nextLevel,currentLevel, scroolOffset,  scroolSpeed, jogador, disparos, lastSpawn, cooldownSpawn, inimigos, disparosInimigos, currentScreen, maxVida
     
-    screen.blit(background, (0,scroolOffset))
-    screen.blit(background, (0, scroolOffset-background.get_height()))
+    screen.blit(levelBackgrounds[currentLevel], (0,scroolOffset))
+    screen.blit(levelBackgrounds[currentLevel], (0, scroolOffset-levelBackgrounds[currentLevel].get_height()))
     
     scroolOffset += scroolSpeed
     scroolSpeed += 0.01
     
-    if scroolOffset >= background.get_height():
+    if scroolOffset >= levelBackgrounds[currentLevel].get_height():
         scroolOffset = 0
     
     jogador.update()
@@ -437,32 +478,34 @@ def showGame():
             
     if jogador.vida == 0:
         currentScreen = "selectQuestion"
+        nextLevel = False
         screen.fill("black")
         inimigos = []
         disparosInimigos = []
         disparos = []
         
-
-def showCreditos():
-    global screen, scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack
+    #TODO sistema de avançar niveis
+        
+def selectLevel():
+    global currentLevel, currentScreen, scroolOffset, scroolSpeed, increaseAmount
     
-    screen.blit(background, (0,scroolOffset))
-    screen.blit(background, (0,scroolOffset-background.get_height()))
-    increaseSpeed()
-    checkResetBackground()
-    
-    screen.blit(creditsGoBack, (0,0))
-    for i in range(len(creditosNames)):
-        screen.blit(creditosNames[i], (creditOffsetX-(creditosNames[i].get_width()/2),(creditsOffsetY+(creditsTextHeight*i)+creditsMarginY)))
-
-show = None
+    currentLevel += 1
+    currentScreen = "game"
+    scroolSpeed = 1
+    increaseAmount = 0.1
+    scroolOffset = 0
 
 def selectQuestion():
     global objetos, currentScreen, jogador, maxVida, show
-    show = random.choice(objetos)
-    currentScreen = "perguntar"
-      
-def showPergunta():
+    if len(objetos) > 0 :
+        show = random.choice(objetos)
+        objetos.pop(objetos.index(show))
+        currentScreen = "perguntar"
+    else:
+        #TODO tela de morte
+        pass
+    
+def showPergunta(avancar):
     global objetos, currentScreen, jogador, maxVida, show
     
     show.update()
@@ -478,34 +521,30 @@ def showPergunta():
                 mousePosition[1] <= (100+show.text.get_height()+50 + ((20 + show.respostas[i].get_height())*(i+1)))
                 ):
                     #print(show.gotRight(show.respostas[i]))
-                    if show.gotRight(show.respostas[i]):
-                        objetos.pop(0)
-                        screen.fill("black")
-                        currentScreen = "game"
-                        jogador.vida = maxVida
-                        jogador.derrotado = False
+                    if avancar == False:
+                        if show.gotRight(show.respostas[i]):
+                            objetos.pop(0)
+                            screen.fill("black")
+                            currentScreen = "game"
+                            jogador.vida = maxVida
+                            jogador.derrotado = False
+                        else:
+                            currentScreen = "home"
+                            #ir para gameplay ou outra coisa
                     else:
-                        currentScreen = "home"
-                        #ir para gameplay ou outra coisa
+                        if show.gotRight(show.respostas[i]):
+                            objetos.pop(0)
+                            screen.fill("black")
+                            currentScreen = "selectLevel"
+                            jogador.vida = maxVida
+                            jogador.derrotado = False
+                        else:
+                            currentScreen = "selectQuestion"
 
-#COISAS DENTRO DO WHILE TRUE
-while True:
+def showCreditos():
+    global screen, scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack, currentScreen
     
-    if currentScreen == "home":
-        showHomeScreen()
-    elif currentScreen == "game":
-        showGame()
-    elif currentScreen == "creditos":
-        showCreditos()
-    elif currentScreen == "perguntar":
-        showPergunta()
-    elif currentScreen == "selectQuestion":
-        selectQuestion()
-        
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+    for event in pygame.events.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse = list(pygame.mouse.get_pressed())
             #[0] = botao esquerdo
@@ -522,27 +561,47 @@ while True:
             #print("x:", startButtonOffset[0],"-",startButtonOffset[0]+startButtonSize[2])
             #print("y:", startButtonOffset[1],"-",startButtonOffset[1]+startButtonSize[3])
             #print("-------------")
-            
-            if (mouse[0] == True and  
-                mousePosition[0]>= startButtonOffset[0]-startButtonBackground.get_width()/2 and 
-                mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and 
-                mousePosition[1]>=startButtonOffset[1] and 
-                mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3]) and
-                currentScreen == "home"
-                ):
-                currentScreen = "game"
-            elif (mouse[0] == True and
-                  mousePosition[0]>=startButtonOffset[0]-startButtonBackground.get_width()/2 and
-                  mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and
-                  mousePosition[1]>= (startButtonOffset[1]+startButtonBackground.get_height()+50) and
-                  mousePosition[1] <= ((startButtonOffset[1]+startButtonBackground.get_height()+50)+homeCreditsText.get_height()) and
-                  currentScreen == "home"
-                  ):
-                currentScreen = "creditos"
-            elif (mouse[0] == True and mousePosition[0]>=0 and 
+        
+            if (mouse[0] == True and mousePosition[0]>=0 and 
                   mousePosition[0]<= creditsGoBack.get_width() and 
                   currentScreen == "creditos"):
                 currentScreen = "home"
+    
+    screen.blit(background, (0,scroolOffset))
+    screen.blit(background, (0,scroolOffset-background.get_height()))
+    increaseSpeed()
+    checkResetBackground()
+    
+    screen.blit(creditsGoBack, (0,0))
+    for i in range(len(creditosNames)):
+        screen.blit(creditosNames[i], (creditOffsetX-(creditosNames[i].get_width()/2),(creditsOffsetY+(creditsTextHeight*i)+creditsMarginY)))
+
+show = None
+
+
+
+#COISAS DENTRO DO WHILE TRUE
+while True:
+    
+    if currentScreen == "home":
+        showHomeScreen()
+    elif currentScreen == "game":
+        showGame()
+    elif currentScreen == "creditos":
+        showCreditos()
+    elif currentScreen == "perguntar" and nextLevel == True:
+        showPergunta(True)
+    elif currentScreen == "perguntar" and nextLevel == False:
+        showPergunta(False)
+    elif currentScreen == "selectQuestion":
+        selectQuestion()
+    elif currentScreen == "selectLevel":
+        selectLevel()
+        
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
             
     clock.tick(60)
     pygame.display.update()
