@@ -62,145 +62,205 @@ class Pergunta():
             self.tela.blit(self.respostas[i], (200, (100+self.text.get_height()+50 + ((20 + self.respostas[i].get_height())*i))))
 
 #GAMEPLAY
-class Level():
-    def __init__(self, tela, backgroundSurface, inputCooldown, spawnCooldown, vida, qtndCompletar, inimigoSprite, inimigoSpeed, inicioNumero, fimNumero, font):
+class Player():
+    def __init__(self, tela, playerSprite, disparoSprite, vida, fontVida, fontVidaSize, startXPos, startYPos, Xspeed, Yspeed, limitXPos, limitYPos, disparoCooldown, disparoDano, shootSpeed):
         self.tela = tela
+        self.playerImage = pygame.image.load(playerSprite)
+        self.size = list(self.playerImage.get_rect())
+        self.shootImage = pygame.image.load(disparoSprite)
         self.vida = vida
-        self.inicio = inicioNumero
-        self.fim = fimNumero
-        self.defeated = False
-        self.requisito = qtndCompletar
-        self.spriteInimigo = inimigoSprite
-        self.listaInimigos = []
-        self.font = font
-        self.inimigoSpeed = inimigoSpeed
+        self.font = pygame.font.Font(fontVida, fontVidaSize)
+        self.x = startXPos
+        self.y = startYPos
+        self.Xspeed = Xspeed
+        self.ySpeed = Yspeed
+        self.limitPos = [limitXPos, limitYPos]
+        self.cooldown = disparoCooldown
+        self.shootDamage = disparoDano
+        self.shootSpeed = shootSpeed
         self.now = pygame.time.get_ticks()
-        self.lastInput = pygame.time.get_ticks()
-        self.inputCooldown = inputCooldown
-        self.spawnCooldown = spawnCooldown
-        self.lastSpawn = pygame.time.get_ticks()
-        self.background = backgroundSurface
+        self.lastShoot = pygame.time.get_ticks()
+        self.derrotado = False
+        self.vidaSurfaces = []
+        surfaceSize = 200 // vida
+        for i in range(self.vida):
+            addSurface = pygame.surface.Surface((surfaceSize,25))
+            addSurface.fill("red")
+            self.vidaSurfaces.append(addSurface)
+
+    def checkContact(self, disparo):
+        inicioHitboxX = self.x
+        fimHitboxX = self.x + self.size[2]
+        fimHitboxY = self.y
+        inicioHitboxY = self.y + self.size[3]
         
-        
-    def sofrerDano(self, dano):
-        self.vida -= dano
-        if self.vida <= 0:
-            self.defeated = True
-            
-    def spawnarInimigo(self):
-        enemy = Inimigo(self.tela, self.spriteInimigo, self.font,
-                        100, 700, -100, self.inimigoSpeed, self.inicio, self.fim)
-        
-        self.listaInimigos.append(enemy)
+        if disparo.x >= inicioHitboxX and disparo.x <= fimHitboxX and disparo.y <= inicioHitboxY and disparo.y >= fimHitboxY:
+            self.sofrerDano(disparo.dano)
+            return True
+
+    def sofrerDano(self, qtndDano):
+        self.vida -= qtndDano
+        if self.vida <= 0 :
+            self.derrotado = True
         
     def update(self):
-        global scroolOffset, scroolSpeed
+        if self.derrotado == False:
+            
+            self.now = pygame.time.get_ticks()
+            keys = pygame.key.get_pressed()
+            
+            if 0 <= self.y and keys[pygame.K_w]:
+                #Se existe pygame.K_w dentro de keys
+                self.y -= self.ySpeed
+            if self.limitPos[1] >= self.y and keys[pygame.K_s]:
+                self.y += self.ySpeed
+            
+            if 0 <= self.x and keys[pygame.K_a]:
+                self.x -= self.Xspeed
+            if self.limitPos[0] >= self.x and keys[pygame.K_d]:
+                self.x += self.Xspeed
+            
+            if keys[pygame.K_SPACE]:
+                nowDisparo = pygame.time.get_ticks()
+                if nowDisparo - lastDisparo >= cooldownDisparo:
+                    disparos.append(Tiro(self.tela, self.x, self.y, self.shootSpeed, self.shootDamage))
+                    #permite manter varios disparos ao mesmo tempo
+            
+            self.tela.blit(self.playerImage, (self.x, self.y))
+            self.updateVida()
+        else:
+            pass
+            #Sistema para voltar para tela de inicio
         
+    def updateVida(self):
+        #textoVida = "Vida: " + str(self.vida)
+        #textoVida = self.font.render(textoVida, True, "white")
+        #self.tela.blit(textoVida, (0,0))
+        for i in range(self.vida):
+            self.tela.blit(self.vidaSurfaces[i], (self.vidaSurfaces[i].get_width()*i,0))
+        
+class Enemy:
+    def __init__(self, tela, vida, spawnPositionX, spawnPositionY, atirador, caminhoDisparo, cooldownDisparo,disparoSpeed, dano, speedX, speedLimitX, speedY, caminhoImagem, isMovingLeft):
+        self.vida = vida
+        self.tela = tela
+        self.x = spawnPositionX
+        self.y = spawnPositionY
+        self.deveAtirar = atirador
+        self.image = pygame.image.load(caminhoImagem)
+        self.size = list(self.image.get_rect())
+        self.disparo = pygame.image.load(caminhoDisparo)
+        self.disparoDano = dano
+        self.speedX = speedX
+        self.LimitX = speedLimitX
+        self.speedY = speedY
+        self.lastShoot = pygame.time.get_ticks()
+        self.shootCooldown = cooldownDisparo
         self.now = pygame.time.get_ticks()
+        self.disparoSpeed = disparoSpeed
+        self.isMovingLeft = isMovingLeft
+        self.rect = list(self.image.get_rect())
+         
+        #print(type(self.image.get_rect()))
+               
+        #self.image.fill("red")
+        #print('Oi')
+        #remover depois
         
-        screen.blit(self.background, (0,scroolOffset))
-        screen.blit(self.background, (0, scroolOffset-self.background.get_height()))
-        scroolOffset += scroolSpeed
-        scroolSpeed += 0.01
-        
-        if scroolOffset >= self.background.get_height():
-            scroolOffset = 0
-        
-        if self.now-self.lastSpawn > self.spawnCooldown:
-            self.spawnarInimigo()
-            self.lastSpawn = pygame.time.get_ticks()
-        
-        keys = pygame.key.get_pressed()
+    def update(self):
+        global disparosInimigos
+            
+        if not self.y > self.tela.get_height() + 100:
+            if self.x > self.tela.get_width():
+                self.isMovingLeft = True
+            elif self.x < 0:
+                self.isMovingLeft = False
+            if self.isMovingLeft:
+                self.x -= self.speedX
+            else:
+                self.x += self.speedX
+                
+            self.y += self.speedY
+            
+            self.tela.blit(self.image, (self.x, self.y))
+            #print(self.x, self.y)
     
-
-        incluidos = self.font.render(entrada, True, "white")
-
-        self.tela.blit(incluidos, (350,50))
-
-        apertado = ""
+            self.now = pygame.time.get_ticks()
+            if self.now - self.lastShoot >= self.shootCooldown:
+                disparosInimigos.append(TiroInimigo(self.tela,self.disparo, self.disparoSpeed, self.disparoDano, self.x + (self.rect[2]/2), self.y + (self.rect[3]/2)))        
+                self.lastShoot = pygame.time.get_ticks()    
+                #Provavelmente vai precisar mexer no sistema de tiro inimigo depois
+        
+    def getLife(self):
+        return self.vida
+        
+    def checkContact(self, disparo):
+        inicioHitboxX = self.x
+        fimHitboxX = self.x + self.size[2]
+        fimHitboxY = self.y
+        inicioHitboxY = self.y + self.size[3]
+        
+        if disparo.x >= inicioHitboxX and disparo.x <= fimHitboxX and disparo.y <= inicioHitboxY and disparo.y >= fimHitboxY:
+            return True    
     
+    def sofrerDano(self, qtndDano):
+        self.vida -= qtndDano
 
-        if self.now-self.lastInput>self.inputCooldown:
+class TiroInimigo():
+    def __init__(self, tela,disparo, speed, dano, spawnX, spawnY):
+        #print("Disparo")
+        self.tela = tela
+        self.image = disparo   
+        self.speed = speed
+        self.dano = dano
+        self.size = list(self.image.get_rect())
+        self.x = spawnX
+        self.y = spawnY
+    
+    def getXPos(self):
+        return self.x + self.size[2]
+    
+    def getYPos(self):
+        return self.y + self.size[3]
+    
+    def checkContact(self, jogador):
+        inicioHitboxX = self.x
+        fimHitboxX = self.x + self.size[2]
+        fimHitboxY = self.y
+        inicioHitboxY = self.y + self.size[3]
         
+        if (jogador.x >= inicioHitboxX and jogador.x <= fimHitboxX and
+            jogador.y <= inicioHitboxY and
+            jogador.y >= fimHitboxY):
+            return True 
+    
+    def update(self):
+        self.tela.blit(self.image, (self.x,self.y))
+        self.y += self.speed
 
-            if keys[pygame.K_0]:
-
-                entrada += "0"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_1]:
-
-                entrada += "1"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_2]:
-
-                entrada += "2"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_3]:
-
-                entrada += "3"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_4]:
-
-                entrada += "4"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_5]:
-
-                entrada += "5"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_6]:
-
-                entrada += "6"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_7]:
-
-                entrada += "7"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_8]:
-
-                entrada += "8"
-
-                last = pygame.time.get_ticks()
-
-            elif keys[pygame.K_9]:
-
-                entrada += "9"
-
-                last = pygame.time.get_ticks()
-
-
-        if keys[pygame.K_SPACE]:
-            apertado = entrada
-            entrada = ""
-            
-            
-            for inimigo in self.listaInimigos:
-                inimigo.update(apertado)
-            
-        
-            
-        
-
-        
-
-
-
-
+class Tiro:
+    def __init__(self, tela, posicaoXPai, posicaoYPai, velocidadeTiro, dano):
+        global lastDisparo
+        #Fala que a variavel esta em escopo global
+        lastDisparo = pygame.time.get_ticks()
+        #Recebe a quantidade de milisegundos desde o pygame.init
+        self.x = posicaoXPai
+        self.y = posicaoYPai
+        self.speed = velocidadeTiro
+        self.image = pygame.image.load("tests/PyGame/starSprite.png")
+        self.size = self.image.get_rect().centerx
+        self.tela = tela
+        self.dano = dano
+    
+    def getXPos(self):
+        return self.size + self.x
+    
+    def getYPos(self):
+        return self.y
+    
+    
+    def update(self):
+        self.tela.blit(self.image, (self.x,self.y))
+        self.y -= self.speed
 
 class Inimigo():
     def __init__(self, tela, objetoSprite, font,inicioXSpawn, fimXSpawn, ySpawn, speed, inicioNum, fimNum):
@@ -236,17 +296,17 @@ class Inimigo():
 
 #GAMEPLAY VARIABLES
 
-# disparos = []
-# inimigos = []
-# disparosInimigos = []
+disparos = []
+inimigos = []
+disparosInimigos = []
 
-# cooldownDisparo = 300
-# cooldownSpawn = 3500
+cooldownDisparo = 300
+cooldownSpawn = 3500
 #Ta um bom cooldown pra testes
 
 #diferença de ticks necessaria para poder atirar
-# lastDisparo = pygame.time.get_ticks()
-# lastSpawn = pygame.time.get_ticks()
+lastDisparo = pygame.time.get_ticks()
+lastSpawn = pygame.time.get_ticks()
 
 now = pygame.time.get_ticks()
 cooldown = 500
@@ -255,29 +315,37 @@ last = pygame.time.get_ticks()
 fontGame = pygame.font.Font(None, 30)
 
 
-#maxVida = 10
-#jogador = Player(screen, "tests/PyGame/starSprite.png", "tests/PyGame/starSprite.png", maxVida, None, 30, 400, 400, 2, 2, screen.get_width(), screen.get_height(), cooldownDisparo, 5, 4)
+maxVida = 10
+jogador = Player(screen, "tests/PyGame/starSprite.png", "tests/PyGame/starSprite.png", maxVida, None, 30, 400, 400, 2, 2, screen.get_width(), screen.get_height(), cooldownDisparo, 5, 4)
 
 #QUESTION SYTEM VARIABLES
 fontPergunta = pygame.font.Font(None, 50)
 fontResposta = pygame.font.Font(None, 35)
+perguntas = [{
+    "question" : "Quanto é um mais um?",
+    "answers" : [1,2,3],
+    "indexCorreta" : 1
+},
+{
+    "question" : "Quanto é dois mais dois?",
+    "answers" : [2,4,6],
+    "indexCorreta" : 1
+}
+           ]
 
 
-# perguntas = [{
-#     "question" : "Quanto é um mais um?",
-#     "answers" : [1,2,3],
-#     "indexCorreta" : 1
-# },
-# {
-#     "question" : "Quanto é dois mais dois?",
-#     "answers" : [2,4,6],
-#     "indexCorreta" : 1
-# }
-#            ]
+objetos = []
 
-#talvez de pau
-#objetos = []
-
+for i in perguntas:
+    adicionarTextoPergunta = fontPergunta.render(i["question"], True, "red")
+    adicionarRespostas = []
+    for j in i["answers"]:
+        j = str(j)
+        listaRespostas = fontResposta.render(j, True, "red")
+        adicionarRespostas.append(listaRespostas)
+    
+    adicionar = Pergunta(screen, adicionarTextoPergunta, adicionarRespostas, i["indexCorreta"])
+    objetos.append(adicionar)
     
 #HOME VARIABLES
 font = pygame.font.Font(None, 60)
@@ -409,12 +477,62 @@ def showGame():
         
     
         
+def selectLevel():
+    global currentLevel, currentScreen, scroolOffset, scroolSpeed, increaseAmount
     
-        
+    currentLevel += 1
+    currentScreen = "game"
+    scroolSpeed = 1
+    increaseAmount = 0.1
+    scroolOffset = 0
 
-
+def selectQuestion():
+    global objetos, currentScreen, jogador, maxVida, show
+    if len(objetos) > 0 :
+        show = random.choice(objetos)
+        objetos.pop(objetos.index(show))
+        currentScreen = "perguntar"
+    else:
+        #Possivel bug q pode resultar disso
+        #Tem a ver com completar o jogo no mesmo momento que ficar sem perguntas
+        #TODO currentScreen =  tela de morte
+        pass
     
-
+def showPergunta(avancar):
+    global objetos, currentScreen, jogador, maxVida, show
+    
+    show.update()
+    
+    
+    if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse = list(pygame.mouse.get_pressed())
+            mousePosition = list(pygame.mouse.get_pos())
+            for i in range(len(show.respostas)):
+                if (mouse[0] and mousePosition[0]>=200 and
+                mousePosition[0] <= 200+show.respostas[i].get_width() and
+                mousePosition[1]>= 100+show.text.get_height()+50 + ((20 + show.respostas[i].get_height())*i) and
+                mousePosition[1] <= (100+show.text.get_height()+50 + ((20 + show.respostas[i].get_height())*(i+1)))
+                ):
+                    #print(show.gotRight(show.respostas[i]))
+                    if avancar == False:
+                        if show.gotRight(show.respostas[i]):
+                            objetos.pop(0)
+                            screen.fill("black")
+                            currentScreen = "game"
+                            jogador.vida = maxVida
+                            jogador.derrotado = False
+                        else:
+                            currentScreen = "home"
+                            #ir para gameplay ou outra coisa
+                    else:
+                        if show.gotRight(show.respostas[i]):
+                            objetos.pop(0)
+                            screen.fill("black")
+                            currentScreen = "selectLevel"
+                            jogador.vida = maxVida
+                            jogador.derrotado = False
+                        else:
+                            currentScreen = "selectQuestion"
 
 def showCreditos():
     global screen, scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack, currentScreen
