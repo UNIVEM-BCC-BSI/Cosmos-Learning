@@ -1,5 +1,6 @@
 import pygame
 import random
+from random import randint
 from sys import exit
 
 pygame.init()
@@ -63,7 +64,10 @@ class Pergunta():
 
 #GAMEPLAY
 class Level():
-    def __init__(self, tela, backgroundSurface, inputCooldown, spawnCooldown, vida, qtndCompletar, inimigoSprite, inimigoSpeed, inicioNumero, fimNumero, font):
+    def __init__(self, tela, backgroundSurface, inputCooldown, spawnCooldown, vida, vidaSurface, qtndCompletar, inimigoSprite, dano,inimigoSpeed, inicioNumero, fimNumero, font):
+        global scroolOffset
+        
+        scroolOffset = 0
         self.tela = tela
         self.vida = vida
         self.inicio = inicioNumero
@@ -80,7 +84,9 @@ class Level():
         self.spawnCooldown = spawnCooldown
         self.lastSpawn = pygame.time.get_ticks()
         self.background = backgroundSurface
-        
+        self.vidaSurfaces = [vidaSurface for i in range(self.vida)]
+        self.dano = dano
+        self.entrada = ""
         
     def sofrerDano(self, dano):
         self.vida -= dano
@@ -88,13 +94,14 @@ class Level():
             self.defeated = True
             
     def spawnarInimigo(self):
-        enemy = Inimigo(self.tela, self.spriteInimigo, self.font,
+        enemy = Inimigo(self.tela, self.spriteInimigo, self.dano,self.font,
                         100, 700, -100, self.inimigoSpeed, self.inicio, self.fim)
         
         self.listaInimigos.append(enemy)
         
     def update(self):
         global scroolOffset, scroolSpeed
+        
         
         self.now = pygame.time.get_ticks()
         
@@ -113,85 +120,106 @@ class Level():
         keys = pygame.key.get_pressed()
     
 
-        incluidos = self.font.render(entrada, True, "white")
+        incluidos = self.font.render(self.entrada, True, "white")
 
         self.tela.blit(incluidos, (350,50))
 
         apertado = ""
-    
+
+        
 
         if self.now-self.lastInput>self.inputCooldown:
         
 
             if keys[pygame.K_0]:
 
-                entrada += "0"
+                self.entrada += "0"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_1]:
 
-                entrada += "1"
+                self.entrada += "1"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_2]:
 
-                entrada += "2"
+                self.entrada += "2"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_3]:
 
-                entrada += "3"
+                self.entrada += "3"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_4]:
 
-                entrada += "4"
+                self.entrada += "4"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_5]:
 
-                entrada += "5"
+                self.entrada += "5"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_6]:
 
-                entrada += "6"
+                self.entrada += "6"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_7]:
 
-                entrada += "7"
+                self.entrada += "7"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_8]:
 
-                entrada += "8"
+                self.entrada += "8"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
             elif keys[pygame.K_9]:
 
-                entrada += "9"
+                self.entrada += "9"
 
-                last = pygame.time.get_ticks()
+                self.lastInput = pygame.time.get_ticks()
 
 
         if keys[pygame.K_SPACE]:
-            apertado = entrada
-            entrada = ""
+            apertado = self.entrada
+            self.entrada = ""
             
-            
-            for inimigo in self.listaInimigos:
+          
+        self.updateVida()
+          
+        for inimigo in self.listaInimigos:
+
+        #todo tirar inimigo quando morre
+
+            if inimigo.vivo == True:
+
                 inimigo.update(apertado)
-            
+                if inimigo.getY() > 500:
+                    self.sofrerDano(inimigo.dano)
+
+            else:
+
+                self.listaInimigos.pop(self.listaInimigos.index(inimigo))
+    
+    def updateVida(self):
+        #textoVida = "Vida: " + str(self.vida)
+        #textoVida = self.font.render(textoVida, True, "white")
+        #self.tela.blit(textoVida, (0,0))
+        for i in range(self.vida):
+            self.tela.blit(self.vidaSurfaces[i], (self.vidaSurfaces[i].get_width()*i,0))
+                
         
             
         
@@ -203,15 +231,16 @@ class Level():
 
 
 class Inimigo():
-    def __init__(self, tela, objetoSprite, font,inicioXSpawn, fimXSpawn, ySpawn, speed, inicioNum, fimNum):
+    def __init__(self, tela, objetoSprite, dano, font,inicioXSpawn, fimXSpawn, ySpawn, speed, inicioNum, fimNum):
         self.tela = tela
         self.image = objetoSprite
-
+        self.dano = dano
         self.font = font
         self.vivo = True
         self.x = randint(inicioXSpawn, fimXSpawn)
         self.y = ySpawn
         self.speed = speed
+        
         self.num1 = randint(inicioNum, fimNum)
         self.num2 = randint(inicioNum, fimNum)
         #TODO diferentes tipos de operações?
@@ -230,6 +259,9 @@ class Inimigo():
     def checkInput(self, tentativa):
         if tentativa == self.answer:
             self.vivo = False
+            
+    def getY(self):
+        return self.y+(self.size[3]/2)
 
 
 #END CLASSES
@@ -319,7 +351,7 @@ creditsTextHeight = font.get_height()
 creditsGoBack = font.render("Voltar", True, "blue")
 
 
-scroolSpeed = 1
+scroolSpeed = 0.1
 increaseAmount = 0.1
 scroolOffset = 0
 
@@ -341,9 +373,9 @@ def increaseSpeed():
     scroolSpeed += increaseAmount
 
 def showHomeScreen():
-    global screen, scroolOffset, scroolSpeed, background, gameTitle, startButtonBackground, startButtonOffset, startText
+    global screen, currentScreen,scroolOffset, scroolSpeed, background, gameTitle, startButtonBackground, startButtonOffset, startText
     
-    for event in pygame.events.get():
+    for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse = list(pygame.mouse.get_pressed())
             #[0] = botao esquerdo
@@ -368,7 +400,7 @@ def showHomeScreen():
                 mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3]) and
                 currentScreen == "home"
                 ):
-                currentScreen = "selectLevel"
+                currentScreen = "game"
             elif (mouse[0] == True and
                   mousePosition[0]>=startButtonOffset[0]-startButtonBackground.get_width()/2 and
                   mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and
@@ -393,19 +425,25 @@ def showHomeScreen():
     screen.blit(homeCreditsText,(screen.get_width()/2-(homeCreditsText.get_width()/2),(startButtonOffset[1]+startButtonBackground.get_height()+50)))
     #Fazer o código pra executar o botão
  
+currentLevel = 0
+spriteInimigo = pygame.image.load("./tests/PyGame/inimigo_1.png")
+spriteInimigo = pygame.transform.scale(spriteInimigo, (50,50))
+
+background = pygame.image.load("./tests/PyGame/background.png")
+background = pygame.transform.scale(background, (800,500))
+vermelho = pygame.surface.Surface((50,25))
+vermelho.fill("red")
+
+niveis = [
+    Level(screen, background, 500, 1000, 10, vermelho, 5, spriteInimigo,1, 1, 1, 10, fontGame),
+    Level(screen, background, 500, 1000, 10, vermelho, 5, spriteInimigo, 1, 2, 10, 20, fontGame),
+    Level(screen, background, 500, 1000, 10, vermelho, 5, spriteInimigo, 1, 3, 20, 30, fontGame)
+]
+
  
-nextLevel = False   
 def showGame():
-    #TODO fazer o global das variavies de escala global
-    global fontGame, levelBackgrounds, currentLevel
     
-    screen.blit(levelBackgrounds[currentLevel], (0,scroolOffset))
-    screen.blit(levelBackgrounds[currentLevel], (0, scroolOffset-levelBackgrounds[currentLevel].get_height()))
-    scroolOffset += scroolSpeed
-    scroolSpeed += 0.01
-    
-    if scroolOffset >= levelBackgrounds[currentLevel].get_height():
-        scroolOffset = 0
+    niveis[currentLevel].update()
         
     
         
@@ -417,9 +455,9 @@ def showGame():
 
 
 def showCreditos():
-    global screen, scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack, currentScreen
+    global screen, currentScreen,scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack, currentScreen
     
-    for event in pygame.events.get():
+    for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse = list(pygame.mouse.get_pressed())
             #[0] = botao esquerdo
@@ -457,6 +495,8 @@ show = None
 
 #COISAS DENTRO DO WHILE TRUE
 while True:
+    
+    screen.fill("black")
     
     if currentScreen == "home":
         showHomeScreen()
