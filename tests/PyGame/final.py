@@ -87,6 +87,7 @@ class Level():
         self.vidaSurfaces = [vidaSurface for i in range(self.vida)]
         self.dano = dano
         self.entrada = ""
+        self.concluido = False
         
     def sofrerDano(self, dano):
         self.vida -= dano
@@ -108,7 +109,6 @@ class Level():
         screen.blit(self.background, (0,scroolOffset))
         screen.blit(self.background, (0, scroolOffset-self.background.get_height()))
         scroolOffset += scroolSpeed
-        scroolSpeed += 0.01
         
         if scroolOffset >= self.background.get_height():
             scroolOffset = 0
@@ -206,12 +206,19 @@ class Level():
             if inimigo.vivo == True:
 
                 inimigo.update(apertado)
-                if inimigo.getY() > 500:
+                if inimigo.getY() > 650:
                     self.sofrerDano(inimigo.dano)
+                    self.listaInimigos.pop(self.listaInimigos.index(inimigo))
 
             else:
-
+                self.requisito -= 1
                 self.listaInimigos.pop(self.listaInimigos.index(inimigo))
+                
+        if self.requisito <=0:
+            self.concluido = True
+            
+        elif self.vida <= 0:
+            self.defeated = True
     
     def updateVida(self):
         #textoVida = "Vida: " + str(self.vida)
@@ -261,7 +268,7 @@ class Inimigo():
             self.vivo = False
             
     def getY(self):
-        return self.y+(self.size[3]/2)
+        return self.y
 
 
 #END CLASSES
@@ -315,10 +322,10 @@ fontResposta = pygame.font.Font(None, 35)
 font = pygame.font.Font(None, 60)
 
 gameTitle = font.render("Cosmos Learning", True, "blue")
-startText = font.render("Iniciar", True, "blue")
-homeCreditsText = font.render("Créditos", True, "blue")
+startText = font.render("Pressione espaço para iniciar", True, "blue")
+homeCreditsText = font.render("Esc para créditos", True, "blue")
 
-startButtonBackground = pygame.surface.Surface((300,100))
+startButtonBackground = pygame.surface.Surface((600,100))
 
 #startButtonBackground.set_alpha(0)
 #assim desaparece ate o texto de inicio de jogo
@@ -348,10 +355,10 @@ creditOffsetX = 400
 creditsOffsetY = 100
 creditsMarginY = 50
 creditsTextHeight = font.get_height()
-creditsGoBack = font.render("Voltar", True, "blue")
+creditsGoBack = font.render("Pressione home para voltar", True, "blue")
 
 
-scroolSpeed = 0.1
+scroolSpeed = 3
 increaseAmount = 0.1
 scroolOffset = 0
 
@@ -370,45 +377,19 @@ def increaseSpeed():
     global scroolOffset, scroolSpeed, increaseAmount
     
     scroolOffset += scroolSpeed
-    scroolSpeed += increaseAmount
+    
 
 def showHomeScreen():
     global screen, currentScreen,scroolOffset, scroolSpeed, background, gameTitle, startButtonBackground, startButtonOffset, startText
     
-    for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse = list(pygame.mouse.get_pressed())
-            #[0] = botao esquerdo
-            #[1] = scroll
-            #[2] = botao direito
-            
-            mousePosition = list(pygame.mouse.get_pos())
-            #[0] = X
-            #[1] = Y
-            
-            #print(mousePosition)
-            #print(mouse)
-            #print("--------------\nPosicao desejada:")
-            #print("x:", startButtonOffset[0],"-",startButtonOffset[0]+startButtonSize[2])
-            #print("y:", startButtonOffset[1],"-",startButtonOffset[1]+startButtonSize[3])
-            #print("-------------")
-            
-            if (mouse[0] == True and  
-                mousePosition[0]>= startButtonOffset[0]-startButtonBackground.get_width()/2 and 
-                mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and 
-                mousePosition[1]>=startButtonOffset[1] and 
-                mousePosition[1]<=(startButtonOffset[1]+startButtonSize[3]) and
-                currentScreen == "home"
-                ):
-                currentScreen = "game"
-            elif (mouse[0] == True and
-                  mousePosition[0]>=startButtonOffset[0]-startButtonBackground.get_width()/2 and
-                  mousePosition[0]<= ((startButtonOffset[0]-startButtonBackground.get_width()/2)+startButtonSize[2]) and
-                  mousePosition[1]>= (startButtonOffset[1]+startButtonBackground.get_height()+50) and
-                  mousePosition[1] <= ((startButtonOffset[1]+startButtonBackground.get_height()+50)+homeCreditsText.get_height()) and
-                  currentScreen == "home"
-                  ):
-                currentScreen = "creditos"
+    keys = pygame.key.get_pressed()
+    
+    if keys[pygame.K_SPACE]:
+        currentScreen = "game"
+    elif keys[pygame.K_ESCAPE]:
+        currentScreen = "creditos"
+    
+    
     
     screen.blit(background, (0,scroolOffset))
     screen.blit(background, (0,scroolOffset-background.get_height()))
@@ -435,16 +416,28 @@ vermelho = pygame.surface.Surface((50,25))
 vermelho.fill("red")
 
 niveis = [
-    Level(screen, background, 500, 1000, 10, vermelho, 5, spriteInimigo,1, 1, 1, 10, fontGame),
-    Level(screen, background, 500, 1000, 10, vermelho, 5, spriteInimigo, 1, 2, 10, 20, fontGame),
-    Level(screen, background, 500, 1000, 10, vermelho, 5, spriteInimigo, 1, 3, 20, 30, fontGame)
+    Level(screen, background, 500, 5000, 10, vermelho, 5, spriteInimigo,1, 1, 1, 10, fontGame),
+    Level(screen, background, 500, 4000, 10, vermelho, 5, spriteInimigo, 2, 2, 10, 20, fontGame),
+    Level(screen, background, 500, 3000, 10, vermelho, 5, spriteInimigo, 3, 3, 20, 30, fontGame)
 ]
 
- 
+textoFim = font.render("FIM", True, "blue") 
+
 def showGame():
     
-    niveis[currentLevel].update()
-        
+    global niveis, currentLevel, currentScreen, screen, textoFim
+    
+    
+    if currentLevel == len(niveis):
+        screen.blit(textoFim, (400,250))
+    else:
+        niveis[currentLevel].update()
+        if niveis[currentLevel].defeated:
+            currentLevel = 0
+            currentScreen = "home"
+        elif niveis[currentLevel].concluido:
+            currentLevel += 1
+    
     
         
     
@@ -457,28 +450,10 @@ def showGame():
 def showCreditos():
     global screen, currentScreen,scroolOffset, scroolSpeed, background, creditOffsetX, creditosNames, creditsMarginY, creditsOffsetY, creditsTextHeight, creditsGoBack, currentScreen
     
-    for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse = list(pygame.mouse.get_pressed())
-            #[0] = botao esquerdo
-            #[1] = scroll
-            #[2] = botao direito
-            
-            mousePosition = list(pygame.mouse.get_pos())
-            #[0] = X
-            #[1] = Y
-            
-            #print(mousePosition)
-            #print(mouse)
-            #print("--------------\nPosicao desejada:")
-            #print("x:", startButtonOffset[0],"-",startButtonOffset[0]+startButtonSize[2])
-            #print("y:", startButtonOffset[1],"-",startButtonOffset[1]+startButtonSize[3])
-            #print("-------------")
-        
-            if (mouse[0] == True and mousePosition[0]>=0 and 
-                  mousePosition[0]<= creditsGoBack.get_width() and 
-                  currentScreen == "creditos"):
-                currentScreen = "home"
+    keys = pygame.key.get_pressed()
+    
+    if keys[pygame.K_HOME]:
+        currentScreen = "home"
     
     screen.blit(background, (0,scroolOffset))
     screen.blit(background, (0,scroolOffset-background.get_height()))
