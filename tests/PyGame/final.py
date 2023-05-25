@@ -122,7 +122,7 @@ class Level():
 
         incluidos = self.font.render(self.entrada, True, "white")
 
-        self.tela.blit(incluidos, (350,50))
+        self.tela.blit(incluidos, ((self.tela.get_width()/2 - incluidos.get_width()/2),self.tela.get_height()-incluidos.get_height()-25))
 
         apertado = ""
 
