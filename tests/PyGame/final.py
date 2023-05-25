@@ -101,7 +101,7 @@ class Level():
         self.listaInimigos.append(enemy)
         
     def update(self):
-        global scroolOffset, scroolSpeed
+        global scroolOffset, scroolSpeed, currentLevel
         
         
         self.now = pygame.time.get_ticks()
@@ -219,6 +219,13 @@ class Level():
             
         elif self.vida <= 0:
             self.defeated = True
+        
+        nivel = "Nível: " + str(currentLevel + 1)
+        nivel = self.font.render(nivel, True, "white")
+        texto = "Abates necessários: " + str(self.requisito)
+        texto = self.font.render(texto, True, "white")
+        self.tela.blit(texto, (800-(texto.get_width()), 0))
+        self.tela.blit(nivel, (0,(self.vidaSurfaces[0].get_height() + 20)))
     
     def updateVida(self):
         #textoVida = "Vida: " + str(self.vida)
@@ -360,7 +367,7 @@ creditsGoBack = font.render("Pressione home para voltar", True, "blue")
 
 scroolSpeed = 3
 increaseAmount = 0.1
-scroolOffset = 0
+scroolOffset = 50
 
 currentScreen = "home"
 
