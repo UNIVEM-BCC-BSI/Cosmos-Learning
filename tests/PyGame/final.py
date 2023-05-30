@@ -107,11 +107,7 @@ class Level():
         self.now = pygame.time.get_ticks()
         
         screen.blit(self.background, (0,scroolOffset))
-        screen.blit(self.background, (0, scroolOffset-self.background.get_height()))
-        scroolOffset += scroolSpeed
         
-        if scroolOffset >= self.background.get_height():
-            scroolOffset = 0
         
         if self.now-self.lastSpawn > self.spawnCooldown:
             self.spawnarInimigo()
@@ -371,19 +367,6 @@ scroolOffset = 50
 
 currentScreen = "home"
 
-def resetSpeed(initialSpeed):
-    return [initialSpeed,0]
-
-def checkResetBackground():
-    global scroolOffset, background
-    
-    if scroolOffset >= background.get_height():
-        scroolOffset = 0
-
-def increaseSpeed():
-    global scroolOffset, scroolSpeed, increaseAmount
-    
-    scroolOffset += scroolSpeed
     
 
 def showHomeScreen():
@@ -399,9 +382,7 @@ def showHomeScreen():
     
     
     screen.blit(backgroundGame[0], (0,scroolOffset))
-    screen.blit(backgroundGame[0], (0,scroolOffset-background.get_height()))
-    increaseSpeed()
-    checkResetBackground()
+    
     
     screen.blit(gameTitle, ((screen.get_width()/2)-(gameTitle.get_width()/2),100))
     screen.blit(startButtonBackground, (startButtonOffset[0]-(startButtonBackground.get_width()/2), 
@@ -423,11 +404,13 @@ backgroundGame = [pygame.image.load("./tests/PyGame/background_level_1.png"),
               ]
 vermelho = pygame.surface.Surface((50,25))
 vermelho.fill("red")
+vida = 10
+requisito = 5
 
 niveis = [
-    Level(screen, backgroundGame[0], 500, 5000, 10, vermelho, 5, spriteInimigo,1, 1, 1, 10, fontGame),
-    Level(screen, backgroundGame[1], 500, 4000, 10, vermelho, 5, spriteInimigo, 2, 2, 10, 20, fontGame),
-    Level(screen, backgroundGame[2], 500, 3000, 10, vermelho, 5, spriteInimigo, 3, 3, 20, 30, fontGame)
+    Level(screen, backgroundGame[0], 250, 5000, 10, vermelho, 5, spriteInimigo,1, 1, 1, 10, fontGame),
+    Level(screen, backgroundGame[1], 250, 4000, 10, vermelho, 5, spriteInimigo, 2, 2, 10, 20, fontGame),
+    Level(screen, backgroundGame[2], 250, 3000, 10, vermelho, 5, spriteInimigo, 3, 3, 20, 30, fontGame)
 ]
 
 textoFim = font.render("FIM", True, "blue") 
@@ -444,6 +427,11 @@ def showGame():
         if niveis[currentLevel].defeated:
             currentLevel = 0
             currentScreen = "home"
+            for i in niveis:
+                i.defeated = False 
+                i.vida = vida
+                i.concluido = False
+                i.requisito = requisito
         elif niveis[currentLevel].concluido:
             currentLevel += 1
     
@@ -456,10 +444,8 @@ def showCreditos():
     if keys[pygame.K_HOME]:
         currentScreen = "home"
     
-    screen.blit(background, (0,scroolOffset))
-    screen.blit(background, (0,scroolOffset-background.get_height()))
-    increaseSpeed()
-    checkResetBackground()
+    screen.blit(backgroundGame[currentLevel], (0,scroolOffset))
+    
     
     screen.blit(creditsGoBack, (0,0))
     for i in range(len(creditosNames)):
