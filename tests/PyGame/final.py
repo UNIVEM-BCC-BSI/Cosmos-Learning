@@ -414,14 +414,23 @@ niveis = [
 ]
 
 textoFim = font.render("FIM", True, "blue") 
+sair = font.render("Aperte ESC para sair", True, "blue")
+
 
 def showGame():
     
-    global niveis, currentLevel, currentScreen, screen, textoFim
+    global niveis, currentLevel, currentScreen, screen, textoFim, voltar, sair
     
     
     if currentLevel == len(niveis):
+        keys = pygame.key.get_pressed()
         screen.blit(textoFim, (400,250))
+        screen.blit(sair, (400-list(sair.get_rect())[2]/2, 350))
+
+        if keys[pygame.K_ESCAPE]:
+            pygame.quit()
+            exit()
+        
     else:
         niveis[currentLevel].update()
         if niveis[currentLevel].defeated:
