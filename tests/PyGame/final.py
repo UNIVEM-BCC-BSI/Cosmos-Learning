@@ -186,6 +186,10 @@ class Level():
                 self.entrada += "9"
 
                 self.lastInput = pygame.time.get_ticks()
+            elif keys[pygame.K_MINUS]:
+                self.entrada += "-"
+                
+                self.lastInput = pygame.time.get_ticks()
 
 
         if keys[pygame.K_SPACE]:
@@ -254,10 +258,22 @@ class Inimigo():
         self.num1 = randint(inicioNum, fimNum)
         self.num2 = randint(inicioNum, fimNum)
         #TODO diferentes tipos de operações?
-        self.answer = str(self.num1 + self.num2)
-        self.text = self.font.render(str(self.num1) + " + " + str(self.num2), True, "white")
+        self.tipoConta()
+        
         self.size = list(self.text.get_rect())
 
+    def tipoConta(self):
+        tipo = randint(1, 3)
+        if tipo == 1:
+            self.answer = str(self.num1 + self.num2)
+            self.text = self.font.render(str(self.num1) + " + " + str(self.num2), True, "white")
+        elif tipo == 2:
+            self.answer = str(self.num1 - self.num2)
+            self.text = self.font.render(str(self.num1) + " - " + str(self.num2), True, "white")
+        else:
+            self.answer = str(self.num1 * self.num2)
+            self.text = self.font.render(str(self.num1) + " X " + str(self.num2), True, "white")
+    
     def update(self, tecla):
         if self.vivo:
             self.tela.blit(self.image, (self.x, self.y))
