@@ -340,16 +340,16 @@ fontResposta = pygame.font.Font(None, 35)
 #HOME VARIABLES
 font = pygame.font.Font(None, 60)
 
-gameTitle = font.render("Cosmos Learning", True, "blue")
-startText = font.render("Pressione espaço para iniciar", True, "blue")
-homeCreditsText = font.render("Esc para créditos", True, "blue")
+gameTitle = font.render("Cosmos Learning", True, "white")
+startText = font.render("Pressione espaço para iniciar", True, "white")
+homeCreditsText = font.render("Esc para créditos", True, "white")
 
 startButtonBackground = pygame.surface.Surface((600,100))
 
 #startButtonBackground.set_alpha(0)
 #assim desaparece ate o texto de inicio de jogo
 
-startButtonBackground.fill("red")
+startButtonBackground.fill("blue")
 startButtonSize = list(startButtonBackground.get_rect())
 startButtonWidthOffset = 400
 startButtonHeightOffset = 300
@@ -374,7 +374,7 @@ creditOffsetX = 400
 creditsOffsetY = 100
 creditsMarginY = 50
 creditsTextHeight = font.get_height()
-creditsGoBack = font.render("Pressione home para voltar", True, "blue")
+creditsGoBack = font.render("Pressione home para voltar", True, "white")
 
 
 scroolSpeed = 3
